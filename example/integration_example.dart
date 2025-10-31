@@ -47,7 +47,7 @@ class InvoicePDFGeneratorExample extends StatefulWidget {
 class _InvoicePDFGeneratorExampleState
     extends State<InvoicePDFGeneratorExample> {
   String? _selectedTemplate = 'mbbook_modern';
-  InvoiceColorTheme? _selectedTheme = InvoiceThemes.blue;
+  InvoiceColorTheme? _selectedTheme = InvoiceThemes.lightBlue;
   bool _isLoading = false;
   String? _statusMessage;
 

@@ -312,81 +312,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _previewTemplate(template, InvoiceData invoice) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
-    
-    // Show color theme selection dialog if template supports it
-    if (template.supportsColorThemes) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(
-            'Select Color Theme',
-            style: TextStyle(fontSize: isMobile ? 18 : 20),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isMobile ? 2 : 3,
-                childAspectRatio: 1,
-                crossAxisSpacing: isMobile ? 8 : 12,
-                mainAxisSpacing: isMobile ? 8 : 12,
-              ),
-              itemCount: InvoiceThemes.all.length,
-              itemBuilder: (context, index) {
-                final theme = InvoiceThemes.all[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                    _navigateToPreview(template, invoice, theme);
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: isMobile ? 50 : 60,
-                        height: isMobile ? 50 : 60,
-                        decoration: BoxDecoration(
-                          color: theme.primaryColor,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        theme.name,
-                        style: TextStyle(fontSize: isMobile ? 11 : 12),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _navigateToPreview(template, invoice, null);
-              },
-              child: const Text('Use Default'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      _navigateToPreview(template, invoice, null);
-    }
+    // Navigate directly to preview with default color theme
+    // Users can change color using the palette icon in the preview screen
+    _navigateToPreview(template, invoice, null);
   }
 
   void _navigateToPreview(

@@ -7,20 +7,19 @@ class BillSummaryAdapter {
   /// Converts FlutterFlow BillSummaryResultsStruct to internal BillSummary model.
   ///
   /// **Field Mapping:**
-  /// - totalTaxableValue → subtotal (before tax)
+  /// - totalTaxableValue → totalTaxableValue (before tax)
   /// - totalDiscount → totalDiscount
-  /// - totalGst → totalTax (GST amount)
+  /// - totalGst → totalGst (GST amount)
   /// - totalCess → totalCess
-  /// - totalLineItemsAfterTaxes → grandTotal (final amount)
-  /// - dueBalancePayable → balance (amount remaining)
+  /// - totalLineItemsAfterTaxes → totalLineItemsAfterTaxes (final amount)
+  /// - dueBalancePayable → dueBalancePayable (amount remaining)
   ///
   /// **Parameters:**
   /// - `billSummaryStruct`: FlutterFlow BillSummaryResultsStruct
   /// - `amountPaid`: Amount already paid (from InvoiceStruct.amountPaid)
   ///
   /// **Calculation Notes:**
-  /// - Round-off is calculated as: grandTotal - (subtotal - discount + tax + cess)
-  /// - This accounts for rounding differences in individual line items
+  /// - Balance is calculated as: grandTotal - amountPaid if not provided in struct
   static BillSummary fromFlutterFlowStruct(
     dynamic billSummaryStruct,
     double amountPaid,
@@ -31,19 +30,13 @@ class BillSummaryAdapter {
     final cess = billSummaryStruct.totalCess ?? 0.0;
     final grandTotal = billSummaryStruct.totalLineItemsAfterTaxes ?? 0.0;
 
-    // Calculate round-off (accounts for rounding in line items)
-    final calculatedTotal = subtotal - discount + tax + cess;
-    final roundOff = grandTotal - calculatedTotal;
-
     return BillSummary(
-      subtotal: subtotal,
+      totalTaxableValue: subtotal,
       totalDiscount: discount,
-      totalTax: tax,
+      totalGst: tax,
       totalCess: cess,
-      roundOff: roundOff,
-      grandTotal: grandTotal,
-      amountPaid: amountPaid,
-      balance: billSummaryStruct.dueBalancePayable ?? (grandTotal - amountPaid),
+      totalLineItemsAfterTaxes: grandTotal,
+      dueBalancePayable: billSummaryStruct.dueBalancePayable ?? (grandTotal - amountPaid),
     );
   }
 }

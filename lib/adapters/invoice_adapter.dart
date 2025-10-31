@@ -137,23 +137,23 @@ class InvoiceAdapter {
 
     switch (modeString) {
       case 'salesInv':
-        return InvoiceMode.sales;
+        return InvoiceMode.salesInv;
       case 'proformaInv':
-        return InvoiceMode.proforma;
+        return InvoiceMode.proformaInv;
       case 'estimateInv':
-        return InvoiceMode.estimate;
+        return InvoiceMode.estimateInv;
       case 'quotationInv':
-        return InvoiceMode.quotation;
+        return InvoiceMode.quotationInv;
       case 'purchaseOrderInv':
-        return InvoiceMode.purchaseOrder;
+        return InvoiceMode.purchaseOrderInv;
       case 'creditNoteInv':
-        return InvoiceMode.creditNote;
+        return InvoiceMode.creditNoteInv;
       case 'debitNoteInv':
-        return InvoiceMode.debitNote;
+        return InvoiceMode.debitNoteInv;
       case 'deliveryChallanInv':
-        return InvoiceMode.deliveryChallan;
+        return InvoiceMode.deliveryChallanInv;
       default:
-        return InvoiceMode.sales; // Default fallback
+        return InvoiceMode.salesInv; // Default fallback
     }
   }
 
