@@ -94,6 +94,9 @@ Adapters provide one-way conversion from FlutterFlow structs to internal models:
 - Null-safe with sensible defaults
 - One-way conversion only (structs → models, not bidirectional)
 
+**Detailed Documentation:**
+See `lib/adapters/AdapterReadme.md` for comprehensive field mappings, usage examples, and integration patterns.
+
 ### DocumentReferences Handling
 
 The FlutterFlow structs contain many DocumentReference fields for database relationships. The adapter system **ignores these completely**:
@@ -116,14 +119,41 @@ The FlutterFlow structs contain many DocumentReference fields for database relat
 
 ### Custom Fields Strategy
 
-FlutterFlow structs include `customFieldValues` lists that contain:
-- `fieldRef`: DocumentReference to field schema (ignored)
-- Field values (could be rendered in future template versions)
+FlutterFlow structs include custom field support via `CustomFieldStruct` (see `references/structTypes/custom_field_struct.dart`):
+- `fieldRef`: DocumentReference to field schema (ignored by adapters)
+- `nameLabel`: Display name for the custom field
+- `formWidgetType`: Input type (text, number, date, etc.)
+- `defaultValueStr`: Default value
+- `isItemField`: `true` for item-level custom fields (rendered in items table)
+- `isBusinessField`: `true` for business-level custom fields (rendered in firm/party sections)
 
-**Current Handling:**
-- Custom field refs are ignored
-- Custom field values are not rendered in standard templates
-- Future templates may add support for rendering custom field values
+**Current State (v1.0):**
+- ✅ Custom field struct schema documented
+- ❌ Custom fields are **not yet supported** in templates
+- ❌ Adapters ignore custom field values
+- ❌ No rendering logic implemented
+
+**Planned Implementation:**
+Custom fields support is a **planned major refactor** (see `TODO-CustomFields.md` for complete implementation plan):
+
+1. **Item-Level Custom Fields** (`isItemField: true`)
+   - Rendered as additional columns/rows in items table
+   - Examples: Warranty period, Color, Batch number, Serial number
+   - 3 rendering strategies: columns (wide templates), inline (modern), grouped (compact)
+
+2. **Business-Level Custom Fields** (`isBusinessField: true`)
+   - Rendered in seller (firm) and buyer (party) business details sections
+   - Examples: Vendor code, Credit limit, Tax exemption status
+   - Supports party-specific fields (different fields per customer)
+
+**Why Not Implemented Yet:**
+- Requires major template refactoring (dynamic table column handling)
+- Needs adapter updates for field value extraction
+- Requires new internal models (`CustomFieldValue`)
+- Breaking changes require careful migration planning
+
+**When It Will Be Added:**
+Estimated for v2.0 release - see `TODO-CustomFields.md` for 3-week implementation timeline and complete technical specification.
 
 ### Integration Pattern
 
@@ -163,7 +193,7 @@ FlutterFlow structs include `customFieldValues` lists that contain:
    await PDFService().printInvoice(
      invoice: invoiceData,
      templateId: 'mbbook_modern',
-     colorTheme: InvoiceThemes.blue,
+     colorTheme: InvoiceThemes.lightBlue,
    );
    ```
 
@@ -404,8 +434,9 @@ Templates: `ModernEliteTemplate`, `MBBookStylishTemplate`, `MBBookModernTemplate
 
 **Color Themes:**
 Modern templates support theme customization via `InvoiceThemes.all`:
-- Default, Blue, Green, Purple, Orange, Red, Teal
+- Default, Light Blue, Green, Purple, Orange, Red, Teal
 - Each theme defines `primaryColor`, `secondaryColor`, `accentColor`
+- Color theme selection available in preview screen (removed from home screen dialog)
 
 ### 3. Compact/Thermal Schema
 Templates: `A5CompactTemplate`, `ThermalTheme2Template`
@@ -453,12 +484,12 @@ HomeScreen (screens/home_screen.dart)
   ├─ Demo Invoice Selector (categorized, responsive)
   └─ Template Grid (1-4 columns based on screen size)
       └─ Template Card (with screenshot preview)
-          └─ [Tap] → Color Theme Dialog (if supported)
-              └─ InvoicePreviewScreen
-                  ├─ PDF Preview Widget
-                  ├─ Download Button
-                  ├─ Print Button
-                  └─ Share Button
+          └─ [Tap] → InvoicePreviewScreen
+              ├─ PDF Preview Widget
+              ├─ Color Theme Selector (palette icon, if supported)
+              ├─ Download Button
+              ├─ Print Button
+              └─ Share Button
 ```
 
 **Responsive Design:**
@@ -542,10 +573,18 @@ Use `pw.MultiPage` for invoices that may span multiple pages (automatically hand
 
 ### Models
 - `lib/models/invoice_data.dart` - Main invoice data structure
-- `lib/models/invoice_enums.dart` - InvoiceMode, PaymentMode enums
+- `lib/models/invoice_enums.dart` - InvoiceMode, PaymentMode enums (with "Inv" suffix)
 - `lib/models/business_details.dart` - Business/customer information
 - `lib/models/item_sale_info.dart` - Line item with tax calculations
-- `lib/models/bill_summary.dart` - Invoice totals and summary
+- `lib/models/bill_summary.dart` - Invoice totals and summary (totalTaxableValue, totalGst, etc.)
+
+### Adapters
+- `lib/adapters/invoice_adapter.dart` - Main orchestrator for invoice conversion
+- `lib/adapters/business_adapter.dart` - Business/party details conversion
+- `lib/adapters/item_adapter.dart` - Line item conversion with tax handling
+- `lib/adapters/bill_summary_adapter.dart` - Invoice totals conversion
+- `lib/adapters/banking_adapter.dart` - Banking details conversion
+- `lib/adapters/AdapterReadme.md` - Comprehensive adapter documentation
 
 ### Templates
 All templates in `lib/templates/`:
@@ -576,6 +615,10 @@ All templates in `lib/templates/`:
 - `references/README/Flutter Inv Gen.md` - Comprehensive implementation guide (2100+ lines)
 - `references/README/Testing.md` - Testing workflow for Chrome preview (1200+ lines)
 - `references/templateScreenshots/` - Template preview images
+- `references/structTypes/custom_field_struct.dart` - FlutterFlow CustomFieldStruct definition
+
+### Planning & Roadmap
+- `TODO-CustomFields.md` - Complete specification for custom fields implementation (v2.0)
 
 ---
 
@@ -692,12 +735,14 @@ Template IDs in `TemplateRegistry` are lowercase with underscores (e.g., `mbbook
 ### InvoiceData Immutability
 `InvoiceData` and related models don't have copyWith methods. To modify, create new instances. Consider adding copyWith for better ergonomics.
 
-### CGST Field Overloading
+### CGST Field Handling
 In `ItemSaleInfo`, the `csgst` field represents:
-- Combined CGST+SGST for intra-state transactions in some templates
-- Just CGST in others (with separate `sgst` field implied)
+- Combined CGST+SGST amount for intra-state transactions
+- Value is 0 for inter-state transactions (where `igst` is used instead)
+- Templates that need separate CGST/SGST display split the value equally (csgst/2 each)
+- Your app should pre-calculate the combined amount before passing to adapters
 
-This inconsistency exists across demo data. When adding new templates, verify the expected tax field interpretation.
+**Important:** The adapter does NOT split CGST/SGST - it passes through the combined value. Templates handle display splitting if needed.
 
 ### Screenshot Paths
 Template screenshots must exist in `references/templateScreenshots/` and match the filename pattern in `screenshotPath`. Missing screenshots show a placeholder icon.
@@ -718,19 +763,36 @@ Each demo must be assigned to exactly one `DemoCategory`. The category determine
 
 ---
 
-## Git Workflow Notes
+## Git Workflow
 
-Current git status shows:
-- Modified template files (switched from default to stylish/modern variants)
-- Deleted `mbbook_default_template.dart` (replaced by newer templates)
-- New `mbbook_stylish_template.dart` added
-- Screenshot updates in progress
+### When Committing Changes
 
-When committing template changes:
-1. Ensure corresponding screenshots are updated
-2. Update `TemplateRegistry` mappings
-3. Test with all demo invoices
-4. Verify backward compatibility if templates are removed
+**Template Changes:**
+1. Ensure corresponding screenshots are updated in `references/templateScreenshots/`
+2. Update `TemplateRegistry` mappings if template IDs change
+3. Test with all demo invoices (especially edge cases)
+4. Verify backward compatibility if templates are removed/renamed
+
+**Adapter Changes:**
+1. Update corresponding internal models if fields change
+2. Update field mapping documentation in adapter files and `AdapterReadme.md`
+3. Run unit tests if available (or add new tests)
+4. Update CLAUDE.md if public API changes
+
+**Model Changes:**
+1. Update all affected adapters
+2. Update all templates that use the changed models
+3. Update demo invoice data if field structure changes
+4. Run comprehensive testing across all templates
+
+### Commit Message Format
+Follow conventional commits format:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `refactor:` - Code refactoring
+- `docs:` - Documentation updates
+- `test:` - Test updates
+- `chore:` - Build/tooling changes
 
 ---
 
@@ -778,7 +840,45 @@ Test with `DemoInvoices.getStressTestManyItems()` (15 items) to verify multi-pag
 
 ---
 
+## Recent Changes (v1.0)
+
+### Adapter Refinements
+- **BillSummary fields** aligned with FlutterFlow struct naming:
+  - `subtotal` → `totalTaxableValue`
+  - `totalTax` → `totalGst`
+  - `grandTotal` → `totalLineItemsAfterTaxes`
+  - `balance` → `dueBalancePayable`
+  - Removed `roundOff` field (not in source struct)
+
+- **InvoiceMode enum** updated with "Inv" suffix for all values:
+  - `sales` → `salesInv`, `proforma` → `proformaInv`, etc.
+
+### UX Improvements
+- Color theme selection moved from home screen to preview screen
+- Default color theme changed to `lightBlue`
+- Simplified template preview flow (direct navigation)
+
+### Documentation
+- Added comprehensive `lib/adapters/AdapterReadme.md`
+- Updated CLAUDE.md with latest field mappings
+- Removed outdated README.md (replaced by CLAUDE.md)
+
+---
+
 ## Future Enhancement Ideas
+
+### Planned for v2.0 (See TODO-CustomFields.md)
+
+**Custom Fields Support** - Complete implementation planned:
+- Item-level custom fields rendered in items table (warranty, color, batch number, etc.)
+- Business-level custom fields in firm/party sections (vendor code, credit limit, etc.)
+- Party-specific custom fields (different fields per customer)
+- 3 rendering strategies (columns, inline, grouped) based on template layout
+- Support for 6 field types: text, number, date, boolean, select, multi-select
+- Dynamic table column handling with layout optimization
+- Estimated effort: 3 weeks, breaking changes managed carefully
+
+### Other Enhancement Ideas
 
 Based on reference documentation analysis:
 
@@ -792,5 +892,6 @@ Based on reference documentation analysis:
 8. **Batch Generation** - Multiple invoices in single operation
 9. **Template Preview Caching** - Pre-generate thumbnails for faster gallery loading
 10. **Custom Font Support** - User-uploadable brand fonts
+11. **Adapter Unit Tests** - Comprehensive test coverage for all adapters
 
 Refer to `references/README/Flutter Inv Gen.md` sections on "Comparison with Cloud Generation" and "Hybrid Approach" for architectural guidance.
