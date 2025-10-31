@@ -1,9 +1,9 @@
 name: billing_templates
 description: Flutter invoice PDF template library for GST-compliant invoicing with FlutterFlow integration. Generate professional invoices with multiple templates and color themes.
 version: 1.0.0
-repository: https://github.com/yourusername/billing_templates
-issue_tracker: https://github.com/yourusername/billing_templates/issues
-homepage: https://github.com/yourusername/billing_templates
+repository: https://github.com/Unity2Blender/billing_templates
+issue_tracker: https://github.com/Unity2Blender/billing_templates/issues
+homepage: https://github.com/Unity2Blender/billing_templates
 
 # Private package distributed via Git, not published to pub.dev
 publish_to: 'none'

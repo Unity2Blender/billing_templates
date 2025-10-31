@@ -135,7 +135,7 @@ FlutterFlow structs include `customFieldValues` lists that contain:
    dependencies:
      billing_templates:
        git:
-         url: https://github.com/yourorg/billing_templates.git
+         url: https://github.com/Unity2Blender/billing_templates.git
          ref: v1.0.0
    ```
 
@@ -180,13 +180,13 @@ FlutterFlow structs include `customFieldValues` lists that contain:
 # Production: Pin to specific version
 billing_templates:
   git:
-    url: https://github.com/yourorg/billing_templates.git
+    url: https://github.com/Unity2Blender/billing_templates.git
     ref: v1.0.0
 
 # Development: Use branch for latest
 billing_templates:
   git:
-    url: https://github.com/yourorg/billing_templates.git
+    url: https://github.com/Unity2Blender/billing_templates.git
     ref: main
 ```
 

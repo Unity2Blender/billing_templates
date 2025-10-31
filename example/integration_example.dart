@@ -18,7 +18,7 @@ import 'package:path_provider/path_provider.dart';
 // dependencies:
 //   billing_templates:
 //     git:
-//       url: https://github.com/yourorg/billing_templates.git
+//       url: https://github.com/Unity2Blender/billing_templates.git
 //       ref: v1.0.0
 //
 import 'package:billing_templates/billing_templates.dart';

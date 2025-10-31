@@ -26,7 +26,7 @@ Complete guide for importing and using the `billing_templates` package as a Git 
 dependencies:
   billing_templates:
     git:
-      url: https://github.com/yourusername/billing_templates.git
+      url: https://github.com/Unity2Blender/billing_templates.git
       ref: v1.0.0  # Or use branch: main for latest
 ```
 
@@ -74,7 +74,7 @@ Your FlutterFlow app must already have:
 dependencies:
   billing_templates:
     git:
-      url: https://github.com/yourusername/billing_templates.git
+      url: https://github.com/Unity2Blender/billing_templates.git
       ref: v1.0.0  # Git tag
 ```
 
@@ -84,7 +84,7 @@ dependencies:
 dependencies:
   billing_templates:
     git:
-      url: https://github.com/yourusername/billing_templates.git
+      url: https://github.com/Unity2Blender/billing_templates.git
       ref: main  # Or your development branch
 ```
 
