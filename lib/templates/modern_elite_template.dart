@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import '../models/invoice_data.dart';
 import '../models/invoice_enums.dart';
+import '../models/item_sale_info.dart';
 import '../utils/invoice_colors.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/pdf_font_helpers.dart';
@@ -29,6 +30,12 @@ class ModernEliteTemplate extends InvoiceTemplate {
 
   @override
   InvoiceColorTheme get defaultColorTheme => InvoiceThemes.purple;
+
+  @override
+  bool get supportsItemCustomFields => true;
+
+  @override
+  bool get supportsBusinessCustomFields => true;
 
   @override
   Future<pw.Document> generatePDF({
@@ -107,6 +114,43 @@ class ModernEliteTemplate extends InvoiceTemplate {
         ),
         pw.Text(invoice.sellerDetails.phone, style: PDFStyles.small),
         pw.Text(invoice.sellerDetails.state, style: PDFStyles.small),
+
+        // Seller custom fields
+        if (invoice.sellerDetails.customFields.isNotEmpty)
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 8),
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey400),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Additional Details',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                ...invoice.sellerDetails.customFields.map((field) =>
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 2),
+                    child: pw.Text(
+                      '${field.fieldName}: ${field.displayValue}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -152,6 +196,43 @@ class ModernEliteTemplate extends InvoiceTemplate {
         if (invoice.buyerDetails.pan.isNotEmpty)
           pw.Text('PAN Number: ${invoice.buyerDetails.pan}',
               style: PDFStyles.body),
+
+        // Buyer custom fields
+        if (invoice.buyerDetails.customFields.isNotEmpty)
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 8),
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey400),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Additional Details',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                ...invoice.buyerDetails.customFields.map((field) =>
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 2),
+                    child: pw.Text(
+                      '${field.fieldName}: ${field.displayValue}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -183,7 +264,7 @@ class ModernEliteTemplate extends InvoiceTemplate {
 
           return pw.TableRow(
             children: [
-              _tableCell(item.item.name),
+              _buildItemNameCell(item),
               if (showHSN) _tableCell(item.item.hsnCode, align: pw.TextAlign.center),
               _tableCell(qty, align: pw.TextAlign.right),
               _tableCellRupee(item.partyNetPrice, align: pw.TextAlign.right),
@@ -356,6 +437,54 @@ class ModernEliteTemplate extends InvoiceTemplate {
         fontSize: 9,
         color: PdfColors.grey800,
         align: align,
+      ),
+    );
+  }
+
+  /// Builds the item name cell with description and custom fields stacked vertically
+  pw.Widget _buildItemNameCell(ItemSaleInfo item) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(6),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          // Item name
+          pw.Text(
+            item.item.name,
+            style: pw.TextStyle(
+              fontSize: 9,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+
+          // Description (if present)
+          if (item.item.description.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                item.item.description,
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+
+          // Custom fields (if any)
+          if (item.customFields.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                '(${item.customFields.map((f) => '${f.fieldName}: ${f.displayValue}').join(', ')})',
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  color: PdfColors.grey600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
