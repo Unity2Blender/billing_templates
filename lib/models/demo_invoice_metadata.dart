@@ -7,7 +7,8 @@ enum DemoCategory {
   documentTypes('Document Types', 'Different document formats and purposes'),
   thermalPos('Thermal/POS', 'Receipt formats for POS systems'),
   edgeCases('Edge Cases', 'Stress tests and unusual scenarios'),
-  notesAndTermsTesting('Notes & Terms Testing', 'Test cases for notes and terms & conditions rendering');
+  notesAndTermsTesting('Notes & Terms Testing', 'Test cases for notes and terms & conditions rendering'),
+  customFieldsTesting('Custom Fields Testing', 'Test cases for item and business custom fields rendering');
 
   const DemoCategory(this.displayName, this.description);
   final String displayName;

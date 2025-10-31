@@ -407,6 +407,163 @@ class DemoHelpers {
         testingPurpose: 'Test A5/Thermal format when both notes and T&C are absent',
         invoiceGetter: DemoInvoices.getA5ThermalSchemaWithNone,
       ),
+
+      // === CUSTOM FIELDS TESTING DEMOS ===
+
+      // Item Custom Fields Tests
+      DemoInvoiceMetadata(
+        id: 'item_custom_fields_basic',
+        descriptiveLabel: 'Item Fields - Basic (1-2 Fields)',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+          TemplateType.mbbookModern,
+        ],
+        quickInfo: '2 items • ₹1.1L • Warranty, Serial No, Color',
+        testingPurpose: 'Test basic item custom fields rendering (1-2 fields, text types)',
+        invoiceGetter: DemoInvoices.getItemCustomFieldsBasic,
+      ),
+      DemoInvoiceMetadata(
+        id: 'item_custom_fields_multiple',
+        descriptiveLabel: 'Item Fields - Multiple (5 Fields, All Types)',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+        ],
+        quickInfo: '1 item • ₹1.3L • HUID, Weight, Purity, Certified, Cert Date',
+        testingPurpose: 'Test multiple item custom fields with all 6 field types (jewellery use case)',
+        invoiceGetter: DemoInvoices.getItemCustomFieldsMultiple,
+      ),
+      DemoInvoiceMetadata(
+        id: 'item_custom_fields_mixed',
+        descriptiveLabel: 'Item Fields - Mixed (Some Items With/Without)',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookModern,
+          TemplateType.modernElite,
+        ],
+        quickInfo: '3 items • ₹9.4K • Batch No, Expiry, MRP (pharma)',
+        testingPurpose: 'Test mixed scenario where some items have custom fields, others do not',
+        invoiceGetter: DemoInvoices.getItemCustomFieldsMixed,
+      ),
+      DemoInvoiceMetadata(
+        id: 'item_custom_fields_edge_case',
+        descriptiveLabel: 'Item Fields - Edge Cases (Long Names/Values, Unicode)',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+        ],
+        quickInfo: '1 item • ₹29.5K • Long strings, special chars, Unicode',
+        testingPurpose: 'Test layout boundaries with very long field names/values, special characters, Unicode',
+        invoiceGetter: DemoInvoices.getItemCustomFieldsEdgeCase,
+      ),
+
+      // Business Custom Fields Tests
+      DemoInvoiceMetadata(
+        id: 'business_custom_fields_seller',
+        descriptiveLabel: 'Business Fields - Seller Only',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+          TemplateType.mbbookModern,
+        ],
+        quickInfo: '1 item • ₹1.65L • IEC Code, Export License, ISO Certified',
+        testingPurpose: 'Test business custom fields on seller side only (export business)',
+        invoiceGetter: DemoInvoices.getBusinessCustomFieldsSeller,
+      ),
+      DemoInvoiceMetadata(
+        id: 'business_custom_fields_buyer',
+        descriptiveLabel: 'Business Fields - Buyer Only',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookStylish,
+          TemplateType.modernElite,
+        ],
+        quickInfo: '1 item • ₹29.5K • Customer Code, Credit Limit, Payment Terms',
+        testingPurpose: 'Test business custom fields on buyer side only (B2B customer)',
+        invoiceGetter: DemoInvoices.getBusinessCustomFieldsBuyer,
+      ),
+      DemoInvoiceMetadata(
+        id: 'business_custom_fields_both',
+        descriptiveLabel: 'Business Fields - Both Seller & Buyer',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookModern,
+          TemplateType.mbbookStylish,
+          TemplateType.modernElite,
+        ],
+        quickInfo: '1 item • ₹59K • MSME, TAN, Account Mgr, Territory, VIP',
+        testingPurpose: 'Test business custom fields on both seller and buyer sides',
+        invoiceGetter: DemoInvoices.getBusinessCustomFieldsBoth,
+      ),
+      DemoInvoiceMetadata(
+        id: 'business_custom_fields_all_types',
+        descriptiveLabel: 'Business Fields - All 6 Field Types',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+        ],
+        quickInfo: '1 item • ₹11.8K • Text, Number, Date, Boolean, Select, Multiselect',
+        testingPurpose: 'Test all 6 custom field types rendering in business details',
+        invoiceGetter: DemoInvoices.getBusinessCustomFieldsAllTypes,
+      ),
+
+      // Combined Tests
+      DemoInvoiceMetadata(
+        id: 'custom_fields_full',
+        descriptiveLabel: 'Combined - Item + Business Fields',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+        ],
+        quickInfo: '2 items • ₹6.2L • Full custom fields integration',
+        testingPurpose: 'Test item AND business custom fields combined (comprehensive test)',
+        invoiceGetter: DemoInvoices.getCustomFieldsFull,
+      ),
+      DemoInvoiceMetadata(
+        id: 'custom_fields_with_notes_terms',
+        descriptiveLabel: 'Combined - Fields + Notes + Terms',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.tallyProfessional,
+          TemplateType.mbbookModern,
+        ],
+        quickInfo: '1 item • ₹88.5K • Custom fields + notes + T&C',
+        testingPurpose: 'Test custom fields alongside notes and terms & conditions (layout conflict test)',
+        invoiceGetter: DemoInvoices.getCustomFieldsWithNotesTerms,
+      ),
+      DemoInvoiceMetadata(
+        id: 'custom_fields_compact_layout',
+        descriptiveLabel: 'Combined - A5/Thermal Stress Test',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.a5Compact,
+          TemplateType.thermal,
+        ],
+        quickInfo: '3 items • ₹1.65K • Space-constrained layouts',
+        testingPurpose: 'Test custom fields in compact layouts (A5/Thermal space constraints)',
+        invoiceGetter: DemoInvoices.getCustomFieldsCompactLayout,
+      ),
+      DemoInvoiceMetadata(
+        id: 'custom_fields_empty',
+        descriptiveLabel: 'Backward Compatibility - Zero Custom Fields',
+        category: DemoCategory.customFieldsTesting,
+        recommendedTemplates: [
+          TemplateType.mbbookTally,
+          TemplateType.mbbookModern,
+          TemplateType.a5Compact,
+        ],
+        quickInfo: '1 item • ₹11.8K • No custom fields',
+        testingPurpose: 'Test backward compatibility with zero custom fields (empty arrays)',
+        invoiceGetter: DemoInvoices.getCustomFieldsEmpty,
+      ),
     ];
   }
 

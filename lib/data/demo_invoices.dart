@@ -3,6 +3,7 @@ import '../models/business_details.dart';
 import '../models/item_sale_info.dart';
 import '../models/bill_summary.dart';
 import '../models/invoice_enums.dart';
+import '../models/custom_field_value.dart';
 
 class DemoInvoices {
   static InvoiceData getSampleInvoice1() {
@@ -2382,6 +2383,1284 @@ class DemoInvoices {
     ];
   }
 
+  // ========================================================================
+  // CUSTOM FIELDS TESTING DEMOS (Phase 3)
+  // ========================================================================
+
+  // === ITEM CUSTOM FIELDS TESTS (4 demos) ===
+
+  static InvoiceData getItemCustomFieldsBasic() {
+    final seller = BusinessDetails(
+      businessName: 'TechMart Electronics',
+      phone: '+91 98765 43210',
+      email: 'info@techmart.com',
+      gstin: '27TECH1234C1D2',
+      pan: 'TECH1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Shop 5, Tech Plaza, Mumbai - 400001',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Customer ABC Ltd',
+      phone: '+91 87654 32109',
+      email: 'purchase@abc.com',
+      gstin: '27CUST5678D2E3',
+      pan: 'CUST5678D',
+      state: 'Maharashtra',
+      district: 'Pune',
+      businessAddress: 'Plot 12, Industrial Area, Pune - 411001',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Laptop - Dell Inspiron',
+          description: '15.6" FHD Display, 8GB RAM, 512GB SSD',
+          hsnCode: '84713010',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 45000.00,
+        qtyOnBill: 2,
+        subtotal: 90000.00,
+        taxableValue: 90000.00,
+        csgst: 8100.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 106200.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Warranty',
+            fieldType: 'text',
+            value: '3 Years',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Serial No',
+            fieldType: 'text',
+            value: 'SN12345ABC',
+            displayOrder: 2,
+            isRequired: false,
+          ),
+        ],
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Wireless Mouse',
+          description: 'Logitech M331',
+          hsnCode: '84716060',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 600.00,
+        qtyOnBill: 5,
+        subtotal: 3000.00,
+        taxableValue: 3000.00,
+        csgst: 270.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 3540.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Color',
+            fieldType: 'select',
+            value: 'Black',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 93000.00,
+      totalGst: 16740.00,
+      totalLineItemsAfterTaxes: 109740.00,
+      dueBalancePayable: 109740.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-ITEM-BASIC',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Item custom fields - Basic (1-2 fields, text types)',
+    );
+  }
+
+  static InvoiceData getItemCustomFieldsMultiple() {
+    final seller = BusinessDetails(
+      businessName: 'Gold Palace Jewellers',
+      phone: '+91 22 2345 6789',
+      email: 'sales@goldpalace.com',
+      gstin: '27GOLD1234C1D2',
+      pan: 'GOLD1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: '123 Zaveri Bazaar, Mumbai - 400002',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Mrs. Priya Sharma',
+      phone: '+91 98765 00000',
+      email: '',
+      gstin: '',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Bandra West, Mumbai - 400050',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Gold Necklace',
+          description: '22K Gold',
+          hsnCode: '71131910',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 125000.00,
+        qtyOnBill: 1,
+        subtotal: 125000.00,
+        taxableValue: 125000.00,
+        csgst: 1500.00,
+        grossTaxCharged: 3.0,
+        lineTotal: 128750.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'HUID',
+            fieldType: 'text',
+            value: '22K916ABC123',
+            displayOrder: 1,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Weight',
+            fieldType: 'number',
+            value: 45.5,
+            displayOrder: 2,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Purity',
+            fieldType: 'select',
+            value: '22K - 916',
+            displayOrder: 3,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Certified',
+            fieldType: 'boolean',
+            value: true,
+            displayOrder: 4,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Certificate Date',
+            fieldType: 'date',
+            value: DateTime(2025, 10, 15),
+            displayOrder: 5,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 125000.00,
+      totalGst: 3750.00,
+      totalLineItemsAfterTaxes: 128750.00,
+      dueBalancePayable: 128750.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-ITEM-MULTI',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 7)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.cash,
+      notesFooter: 'TEST: Item custom fields - Multiple (5 fields, all types)',
+    );
+  }
+
+  static InvoiceData getItemCustomFieldsMixed() {
+    final seller = BusinessDetails(
+      businessName: 'Pharma Plus Distributors',
+      phone: '+91 22 2222 3333',
+      email: 'orders@pharmaplus.com',
+      gstin: '27PHAR1234C1D2',
+      pan: 'PHAR1234C',
+      state: 'Maharashtra',
+      district: 'Thane',
+      businessAddress: 'Medical Complex, Thane - 400601',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'City Hospital',
+      phone: '+91 22 3333 4444',
+      email: 'purchase@cityhospital.com',
+      gstin: '27HOSP5678D2E3',
+      pan: 'HOSP5678D',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Central Mumbai - 400012',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Paracetamol 500mg',
+          description: 'Fever relief tablets',
+          hsnCode: '30049099',
+          qtyUnit: 'Strip',
+        ),
+        partyNetPrice: 15.00,
+        qtyOnBill: 100,
+        subtotal: 1500.00,
+        taxableValue: 1500.00,
+        csgst: 90.00,
+        grossTaxCharged: 12.0,
+        lineTotal: 1680.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Batch No',
+            fieldType: 'text',
+            value: 'BTH2025001',
+            displayOrder: 1,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Expiry Date',
+            fieldType: 'date',
+            value: DateTime(2027, 12, 31),
+            displayOrder: 2,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'MRP',
+            fieldType: 'number',
+            value: 20.00,
+            displayOrder: 3,
+            isRequired: false,
+          ),
+        ],
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Surgical Gloves',
+          description: 'Latex free, powder free',
+          hsnCode: '40151900',
+          qtyUnit: 'Box',
+        ),
+        partyNetPrice: 250.00,
+        qtyOnBill: 10,
+        subtotal: 2500.00,
+        taxableValue: 2500.00,
+        csgst: 225.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 2950.00,
+        // NO custom fields for this item
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Hand Sanitizer',
+          description: '500ml bottle',
+          hsnCode: '33074900',
+          qtyUnit: 'Bottle',
+        ),
+        partyNetPrice: 80.00,
+        qtyOnBill: 50,
+        subtotal: 4000.00,
+        taxableValue: 4000.00,
+        csgst: 360.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 4720.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Alcohol %',
+            fieldType: 'number',
+            value: 70.0,
+            displayOrder: 1,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 8000.00,
+      totalGst: 1350.00,
+      totalLineItemsAfterTaxes: 9350.00,
+      dueBalancePayable: 9350.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-ITEM-MIXED',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 15)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Item custom fields - Mixed (some items with fields, some without)',
+    );
+  }
+
+  static InvoiceData getItemCustomFieldsEdgeCase() {
+    final seller = BusinessDetails(
+      businessName: 'Industrial Components & Supplies Co.',
+      phone: '+91 22 5555 6666',
+      email: 'info@industrialcomponents.com',
+      gstin: '27INDU1234C1D2',
+      pan: 'INDU1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'MIDC Industrial Estate, Andheri East, Mumbai - 400093',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Manufacturing Unit #7',
+      phone: '+91 22 6666 7777',
+      email: '',
+      gstin: '27MANU5678D2E3',
+      pan: 'MANU5678D',
+      state: 'Maharashtra',
+      district: 'Thane',
+      businessAddress: 'Plot 15/A, MIDC Area, Thane - 400710',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Specialized Bearing Assembly',
+          description: 'High-precision industrial grade bearing with extended specifications',
+          hsnCode: '84821000',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 5000.00,
+        qtyOnBill: 5,
+        subtotal: 25000.00,
+        taxableValue: 25000.00,
+        csgst: 2250.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 29500.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Very Long Field Name That Tests Layout Boundaries',
+            fieldType: 'text',
+            value: r'This is a very long value string that contains special characters like @#$%^&*() and tests how the PDF handles extended text content that might wrap or overflow in constrained layouts',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Unicode Test',
+            fieldType: 'text',
+            value: 'Test: हिंदी, ગુજરાતી, தமிழ், 中文, العربية',
+            displayOrder: 2,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Special Chars',
+            fieldType: 'text',
+            value: r'Symbols: °C, ±5%, µm, ≤10mm, €/$£¥',
+            displayOrder: 3,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 25000.00,
+      totalGst: 4500.00,
+      totalLineItemsAfterTaxes: 29500.00,
+      dueBalancePayable: 29500.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-ITEM-EDGE',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Item custom fields - Edge Cases (long names/values, special characters, Unicode)',
+    );
+  }
+
+  // === BUSINESS CUSTOM FIELDS TESTS (4 demos) ===
+
+  static InvoiceData getBusinessCustomFieldsSeller() {
+    final seller = BusinessDetails(
+      businessName: 'Premium Exports International',
+      phone: '+91 22 7777 8888',
+      email: 'exports@premium.com',
+      gstin: '27PREM1234C1D2',
+      pan: 'PREM1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Export House, Nariman Point, Mumbai - 400021',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'IEC Code',
+          fieldType: 'text',
+          value: 'IEC0515012345',
+          displayOrder: 1,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'Export License',
+          fieldType: 'text',
+          value: 'EXP/2025/12345',
+          displayOrder: 2,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'ISO Certified',
+          fieldType: 'boolean',
+          value: true,
+          displayOrder: 3,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Regular Customer Ltd',
+      phone: '+91 22 8888 9999',
+      email: 'purchase@regular.com',
+      gstin: '27REGU5678D2E3',
+      pan: 'REGU5678D',
+      state: 'Maharashtra',
+      district: 'Pune',
+      businessAddress: 'Pune - 411001',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Export Quality Fabric',
+          description: 'Cotton blend, 100 meters roll',
+          hsnCode: '52081100',
+          qtyUnit: 'Roll',
+        ),
+        partyNetPrice: 15000.00,
+        qtyOnBill: 10,
+        subtotal: 150000.00,
+        taxableValue: 150000.00,
+        csgst: 7500.00,
+        grossTaxCharged: 5.0,
+        lineTotal: 157500.00,
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 150000.00,
+      totalGst: 15000.00,
+      totalLineItemsAfterTaxes: 165000.00,
+      dueBalancePayable: 165000.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-BIZ-SELLER',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 45)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Business custom fields - Seller only',
+    );
+  }
+
+  static InvoiceData getBusinessCustomFieldsBuyer() {
+    final seller = BusinessDetails(
+      businessName: 'Standard Suppliers Co',
+      phone: '+91 22 1111 2222',
+      email: 'sales@standard.com',
+      gstin: '27STAN1234C1D2',
+      pan: 'STAN1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Mumbai - 400001',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Corporate Client Pvt Ltd',
+      phone: '+91 22 3333 4444',
+      email: 'accounts@corporate.com',
+      gstin: '27CORP5678D2E3',
+      pan: 'CORP5678D',
+      state: 'Maharashtra',
+      district: 'Pune',
+      businessAddress: 'Corporate Tower, Pune - 411014',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Customer Code',
+          fieldType: 'text',
+          value: 'CUST-2025-1234',
+          displayOrder: 1,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'Credit Limit',
+          fieldType: 'number',
+          value: 500000.00,
+          displayOrder: 2,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Payment Terms',
+          fieldType: 'select',
+          value: 'Net 45 days',
+          displayOrder: 3,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Delivery Instructions',
+          fieldType: 'text',
+          value: 'Loading Bay 3, Weekdays 9AM-5PM only',
+          displayOrder: 4,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Office Supplies Bundle',
+          description: 'Stationery kit for corporate office',
+          hsnCode: '48201090',
+          qtyUnit: 'Set',
+        ),
+        partyNetPrice: 5000.00,
+        qtyOnBill: 5,
+        subtotal: 25000.00,
+        taxableValue: 25000.00,
+        csgst: 2250.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 29500.00,
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 25000.00,
+      totalGst: 4500.00,
+      totalLineItemsAfterTaxes: 29500.00,
+      dueBalancePayable: 29500.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-BIZ-BUYER',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 45)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Business custom fields - Buyer only',
+    );
+  }
+
+  static InvoiceData getBusinessCustomFieldsBoth() {
+    final seller = BusinessDetails(
+      businessName: 'Certified Traders & Co',
+      phone: '+91 22 4444 5555',
+      email: 'info@certified.com',
+      gstin: '27CERT1234C1D2',
+      pan: 'CERT1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Trade Center, Mumbai - 400013',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'MSME Registration',
+          fieldType: 'text',
+          value: 'UDYAM-MH-12-3456789',
+          displayOrder: 1,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'TAN',
+          fieldType: 'text',
+          value: 'CERT1234D',
+          displayOrder: 2,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Partner Enterprises Ltd',
+      phone: '+91 22 5555 6666',
+      email: 'purchase@partner.com',
+      gstin: '27PART5678D2E3',
+      pan: 'PART5678D',
+      state: 'Maharashtra',
+      district: 'Thane',
+      businessAddress: 'Business Park, Thane - 400607',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Account Manager',
+          fieldType: 'text',
+          value: 'Mr. Rajesh Kumar',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Territory',
+          fieldType: 'select',
+          value: 'West Zone',
+          displayOrder: 2,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'VIP Customer',
+          fieldType: 'boolean',
+          value: true,
+          displayOrder: 3,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Enterprise Software License',
+          description: 'Annual subscription',
+          hsnCode: '98314',
+          qtyUnit: 'License',
+        ),
+        partyNetPrice: 50000.00,
+        qtyOnBill: 1,
+        subtotal: 50000.00,
+        taxableValue: 50000.00,
+        csgst: 4500.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 59000.00,
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 50000.00,
+      totalGst: 9000.00,
+      totalLineItemsAfterTaxes: 59000.00,
+      dueBalancePayable: 59000.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-BIZ-BOTH',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Business custom fields - Both seller and buyer',
+    );
+  }
+
+  static InvoiceData getBusinessCustomFieldsAllTypes() {
+    final seller = BusinessDetails(
+      businessName: 'All Fields Demo Company',
+      phone: '+91 22 6666 7777',
+      email: 'demo@allfields.com',
+      gstin: '27DEMO1234C1D2',
+      pan: 'DEMO1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Demo Plaza, Mumbai - 400001',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Text Field',
+          fieldType: 'text',
+          value: 'Sample text value',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Number Field',
+          fieldType: 'number',
+          value: 12345.67,
+          displayOrder: 2,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Date Field',
+          fieldType: 'date',
+          value: DateTime(2025, 10, 31),
+          displayOrder: 3,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Boolean Field',
+          fieldType: 'boolean',
+          value: true,
+          displayOrder: 4,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Select Field',
+          fieldType: 'select',
+          value: 'Option A',
+          displayOrder: 5,
+          isRequired: false,
+        ),
+        CustomFieldValue(
+          fieldName: 'Multiselect Field',
+          fieldType: 'multiselect',
+          value: ['Choice 1', 'Choice 2', 'Choice 3'],
+          displayOrder: 6,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'All Types Customer',
+      phone: '+91 22 7777 8888',
+      email: '',
+      gstin: '',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Mumbai - 400050',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Demo Product',
+          description: 'For testing all field types',
+          hsnCode: '00000000',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 10000.00,
+        qtyOnBill: 1,
+        subtotal: 10000.00,
+        taxableValue: 10000.00,
+        csgst: 900.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 11800.00,
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 10000.00,
+      totalGst: 1800.00,
+      totalLineItemsAfterTaxes: 11800.00,
+      dueBalancePayable: 11800.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-BIZ-ALLTYPES',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.cash,
+      notesFooter: 'TEST: Business custom fields - All 6 field types',
+    );
+  }
+
+  // === COMBINED TESTS (4 demos) ===
+
+  static InvoiceData getCustomFieldsFull() {
+    final seller = BusinessDetails(
+      businessName: 'Complete Solutions Pvt Ltd',
+      phone: '+91 22 8888 9999',
+      email: 'sales@complete.com',
+      gstin: '27COMP1234C1D2',
+      pan: 'COMP1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Complete Tower, BKC, Mumbai - 400051',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Company Registration',
+          fieldType: 'text',
+          value: 'CIN: U12345MH2020PTC123456',
+          displayOrder: 1,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'Authorized Dealer',
+          fieldType: 'boolean',
+          value: true,
+          displayOrder: 2,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Full Test Customer Co',
+      phone: '+91 22 9999 0000',
+      email: 'buyer@fulltest.com',
+      gstin: '27FULL5678D2E3',
+      pan: 'FULL5678D',
+      state: 'Maharashtra',
+      district: 'Pune',
+      businessAddress: 'Pune - 411045',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'PO Number',
+          fieldType: 'text',
+          value: 'PO/2025/10/12345',
+          displayOrder: 1,
+          isRequired: true,
+        ),
+        CustomFieldValue(
+          fieldName: 'Credit Days',
+          fieldType: 'number',
+          value: 60.0,
+          displayOrder: 2,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Industrial Machinery',
+          description: 'CNC machine with controller',
+          hsnCode: '84561000',
+          qtyUnit: 'Unit',
+        ),
+        partyNetPrice: 500000.00,
+        qtyOnBill: 1,
+        subtotal: 500000.00,
+        taxableValue: 500000.00,
+        csgst: 45000.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 590000.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Model No',
+            fieldType: 'text',
+            value: 'CNC-2025-PRO',
+            displayOrder: 1,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Warranty Years',
+            fieldType: 'number',
+            value: 5.0,
+            displayOrder: 2,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Installation Req',
+            fieldType: 'boolean',
+            value: true,
+            displayOrder: 3,
+            isRequired: false,
+          ),
+        ],
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Spare Parts Kit',
+          description: 'Essential spares for 1 year',
+          hsnCode: '84569000',
+          qtyUnit: 'Kit',
+        ),
+        partyNetPrice: 25000.00,
+        qtyOnBill: 1,
+        subtotal: 25000.00,
+        taxableValue: 25000.00,
+        csgst: 2250.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 29500.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Kit Code',
+            fieldType: 'text',
+            value: 'SPARE-KIT-001',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 525000.00,
+      totalGst: 94500.00,
+      totalLineItemsAfterTaxes: 619500.00,
+      dueBalancePayable: 619500.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-FULL',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 60)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'TEST: Full custom fields - Item AND business fields combined',
+    );
+  }
+
+  static InvoiceData getCustomFieldsWithNotesTerms() {
+    final seller = BusinessDetails(
+      businessName: 'Full Featured Invoicing Co',
+      phone: '+91 22 1234 5678',
+      email: 'invoices@fullfeatured.com',
+      gstin: '27FEAT1234C1D2',
+      pan: 'FEAT1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Feature Complex, Mumbai - 400020',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Vendor Code',
+          fieldType: 'text',
+          value: 'VEND-2025-789',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Comprehensive Testing Ltd',
+      phone: '+91 22 8765 4321',
+      email: '',
+      gstin: '27TEST5678D2E3',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Mumbai - 400070',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Customer ID',
+          fieldType: 'text',
+          value: 'CUST-ID-9876',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Premium Service Package',
+          description: 'Annual maintenance contract',
+          hsnCode: '998314',
+          qtyUnit: 'Year',
+        ),
+        partyNetPrice: 75000.00,
+        qtyOnBill: 1,
+        subtotal: 75000.00,
+        taxableValue: 75000.00,
+        csgst: 6750.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 88500.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Contract ID',
+            fieldType: 'text',
+            value: 'AMC/2025/12345',
+            displayOrder: 1,
+            isRequired: true,
+          ),
+          CustomFieldValue(
+            fieldName: 'Start Date',
+            fieldType: 'date',
+            value: DateTime(2025, 11, 1),
+            displayOrder: 2,
+            isRequired: true,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 75000.00,
+      totalGst: 13500.00,
+      totalLineItemsAfterTaxes: 88500.00,
+      dueBalancePayable: 88500.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-NOTES-TERMS',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: 'NOTES: This invoice tests custom fields along with notes and terms.\n'
+          'All three elements should render correctly without layout conflicts.\n'
+          'Verify proper spacing and alignment.',
+      paymentTerms: [
+        'Payment due within 30 days from invoice date',
+        'Late payment will attract 2% monthly interest',
+        'Service contract valid for 365 days from start date',
+        'All disputes subject to Mumbai jurisdiction only',
+      ],
+    );
+  }
+
+  static InvoiceData getCustomFieldsCompactLayout() {
+    final seller = BusinessDetails(
+      businessName: 'Compact Store',
+      phone: '+91 98765 43210',
+      email: '',
+      gstin: '27COMP1234C1D2',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Shop 3, Mumbai',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'License',
+          fieldType: 'text',
+          value: 'LIC-2025-12345',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Walk-in Customer',
+      phone: '+91 98765 00000',
+      email: '',
+      gstin: '',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: '',
+      customFields: [
+        CustomFieldValue(
+          fieldName: 'Membership',
+          fieldType: 'text',
+          value: 'GOLD-123',
+          displayOrder: 1,
+          isRequired: false,
+        ),
+      ],
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Product A',
+          description: '',
+          hsnCode: '',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 100.00,
+        qtyOnBill: 5,
+        subtotal: 500.00,
+        taxableValue: 500.00,
+        csgst: 45.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 590.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Warranty',
+            fieldType: 'text',
+            value: '1Y',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+        ],
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Product B',
+          description: '',
+          hsnCode: '',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 200.00,
+        qtyOnBill: 3,
+        subtotal: 600.00,
+        taxableValue: 600.00,
+        csgst: 54.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 708.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Color',
+            fieldType: 'select',
+            value: 'Blue',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+          CustomFieldValue(
+            fieldName: 'Size',
+            fieldType: 'select',
+            value: 'M',
+            displayOrder: 2,
+            isRequired: false,
+          ),
+        ],
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Product C',
+          description: '',
+          hsnCode: '',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 150.00,
+        qtyOnBill: 2,
+        subtotal: 300.00,
+        taxableValue: 300.00,
+        csgst: 27.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 354.00,
+        customFields: [
+          CustomFieldValue(
+            fieldName: 'Batch',
+            fieldType: 'text',
+            value: 'B123',
+            displayOrder: 1,
+            isRequired: false,
+          ),
+        ],
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 1400.00,
+      totalGst: 252.00,
+      totalLineItemsAfterTaxes: 1652.00,
+      dueBalancePayable: 1652.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-COMPACT',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.cash,
+      notesFooter: 'TEST: Custom fields in A5/Thermal compact layouts',
+    );
+  }
+
+  static InvoiceData getCustomFieldsEmpty() {
+    final seller = BusinessDetails(
+      businessName: 'Backward Compatible Co',
+      phone: '+91 22 1111 2222',
+      email: 'info@backcompat.com',
+      gstin: '27BACK1234C1D2',
+      pan: 'BACK1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Mumbai - 400001',
+      // NO custom fields
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Regular Customer',
+      phone: '+91 22 3333 4444',
+      email: '',
+      gstin: '',
+      pan: '',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Mumbai - 400050',
+      // NO custom fields
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Standard Product',
+          description: 'No custom fields',
+          hsnCode: '12345678',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 1000.00,
+        qtyOnBill: 10,
+        subtotal: 10000.00,
+        taxableValue: 10000.00,
+        csgst: 900.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 11800.00,
+        // NO custom fields
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 10000.00,
+      totalGst: 1800.00,
+      totalLineItemsAfterTaxes: 11800.00,
+      dueBalancePayable: 11800.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'CF-EMPTY',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.cash,
+      notesFooter: 'TEST: Zero custom fields - Backward compatibility check',
+    );
+  }
+
+  static List<InvoiceData> getCustomFieldsTestingInvoices() {
+    return [
+      // Item Custom Fields Tests
+      getItemCustomFieldsBasic(),
+      getItemCustomFieldsMultiple(),
+      getItemCustomFieldsMixed(),
+      getItemCustomFieldsEdgeCase(),
+      // Business Custom Fields Tests
+      getBusinessCustomFieldsSeller(),
+      getBusinessCustomFieldsBuyer(),
+      getBusinessCustomFieldsBoth(),
+      getBusinessCustomFieldsAllTypes(),
+      // Combined Tests
+      getCustomFieldsFull(),
+      getCustomFieldsWithNotesTerms(),
+      getCustomFieldsCompactLayout(),
+      getCustomFieldsEmpty(),
+    ];
+  }
+
   static List<InvoiceData> getAllSamples() {
     return [
       getSampleInvoice1(),
@@ -2407,6 +3686,7 @@ class DemoInvoices {
       getPartialPaymentScenario(),
       getMinimalDataInvoice(),
       ...getNotesAndTermsTestingInvoices(),
+      ...getCustomFieldsTestingInvoices(),
     ];
   }
 }

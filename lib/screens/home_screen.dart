@@ -521,6 +521,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return Icons.bug_report;
       case DemoCategory.notesAndTermsTesting:
         return Icons.notes;
+      case DemoCategory.customFieldsTesting:
+        return Icons.label;
     }
   }
 
