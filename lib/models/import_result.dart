@@ -49,10 +49,33 @@ class ImportResult<T> {
   bool get hasWarnings => warnings.isNotEmpty;
 
   /// Number of successful imports
-  int get successCount => metadata.successCount;
+  /// Falls back to data.length if metadata.successCount is 0 but data exists
+  int get successCount {
+    if (metadata.successCount > 0) {
+      return metadata.successCount;
+    }
+    // Defensive fallback: if metadata wasn't set but we have data
+    if (data != null && data is List) {
+      return (data as List).length;
+    }
+    return 0;
+  }
 
   /// Number of failed/skipped rows
   int get failureCount => metadata.failureCount;
+
+  /// Total rows processed (success + failure)
+  /// Falls back to data.length if metadata.totalRows is 0 but data exists
+  int get totalRows {
+    if (metadata.totalRows > 0) {
+      return metadata.totalRows;
+    }
+    // Defensive fallback
+    if (data != null && data is List) {
+      return (data as List).length;
+    }
+    return 0;
+  }
 }
 
 /// Warning information for non-fatal issues during import

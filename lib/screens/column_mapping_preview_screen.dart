@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../services/sheets_importer_service.dart';
 import '../models/column_mapping.dart';
+import '../models/import_result.dart';
 import '../importers/item_sheet_importer.dart';
 import '../importers/party_sheet_importer.dart';
 import 'import_type_selection_screen.dart';
@@ -28,7 +29,7 @@ class ColumnMappingPreviewScreen extends StatefulWidget {
 class _ColumnMappingPreviewScreenState
     extends State<ColumnMappingPreviewScreen> {
   bool _isProcessing = false;
-  Map<String, ColumnMapping>? _columnMappings;
+  ImportResult<dynamic>? _importResult;
   String? _errorMessage;
 
   @override
@@ -46,16 +47,16 @@ class _ColumnMappingPreviewScreenState
     try {
       final service = SheetsImporterService();
 
-      // Perform a dry run to get column mappings without importing
+      // Perform import to get both column mappings and data
       if (widget.importType == ImportType.items) {
         final result = await service.importItems(
           fileBytes: widget.fileBytes,
           fileName: widget.fileName,
         );
 
-        if (result.isSuccess && result.columnMappings != null) {
+        if (result.isSuccess) {
           setState(() {
-            _columnMappings = result.columnMappings;
+            _importResult = result;
             _isProcessing = false;
           });
         } else {
@@ -70,9 +71,9 @@ class _ColumnMappingPreviewScreenState
           fileName: widget.fileName,
         );
 
-        if (result.isSuccess && result.columnMappings != null) {
+        if (result.isSuccess) {
           setState(() {
-            _columnMappings = result.columnMappings;
+            _importResult = result;
             _isProcessing = false;
           });
         } else {
@@ -177,15 +178,17 @@ class _ColumnMappingPreviewScreenState
   }
 
   Widget _buildMappingView(bool isMobile) {
-    if (_columnMappings == null) {
+    if (_importResult == null || _importResult!.columnMappings == null) {
       return const Center(child: Text('No mappings available'));
     }
 
+    final columnMappings = _importResult!.columnMappings!;
+
     // Separate required and optional mappings
-    final requiredMappings = _columnMappings!.entries
+    final requiredMappings = columnMappings.entries
         .where((e) => e.value.isRequired)
         .toList();
-    final optionalMappings = _columnMappings!.entries
+    final optionalMappings = columnMappings.entries
         .where((e) => !e.value.isRequired)
         .toList();
 
@@ -256,29 +259,51 @@ class _ColumnMappingPreviewScreenState
                       // Summary card
                       Card(
                         elevation: 0,
-                        color: Colors.green[50],
+                        color: _importResult!.successCount > 0 ? Colors.green[50] : Colors.orange[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: Colors.green[200]!, width: 1),
+                          side: BorderSide(
+                            color: _importResult!.successCount > 0 ? Colors.green[200]! : Colors.orange[200]!,
+                            width: 1,
+                          ),
                         ),
                         child: Padding(
                           padding: EdgeInsets.all(isMobile ? 16 : 20),
                           child: Row(
                             children: [
                               Icon(
-                                Icons.check_circle_outline,
-                                color: Colors.green[700],
+                                _importResult!.successCount > 0
+                                    ? Icons.check_circle_outline
+                                    : Icons.warning_amber,
+                                color: _importResult!.successCount > 0 ? Colors.green[700] : Colors.orange[700],
                                 size: isMobile ? 20 : 24,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: Text(
-                                  'Successfully matched ${_columnMappings!.length} columns using fuzzy matching',
-                                  style: TextStyle(
-                                    fontSize: isMobile ? 13 : 14,
-                                    color: Colors.green[900],
-                                    height: 1.4,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Matched ${columnMappings.length} columns using fuzzy matching',
+                                      style: TextStyle(
+                                        fontSize: isMobile ? 13 : 14,
+                                        color: _importResult!.successCount > 0 ? Colors.green[900] : Colors.orange[900],
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _importResult!.successCount > 0
+                                          ? '${_importResult!.successCount} record(s) ready to import'
+                                          : 'Warning: 0 records found. Check your data rows.',
+                                      style: TextStyle(
+                                        fontSize: isMobile ? 12 : 13,
+                                        color: _importResult!.successCount > 0 ? Colors.green[800] : Colors.orange[800],
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -286,6 +311,82 @@ class _ColumnMappingPreviewScreenState
                         ),
                       ),
                       SizedBox(height: isMobile ? 20 : 24),
+
+                      // Warnings section (if any)
+                      if (_importResult!.hasWarnings) ...[
+                        Card(
+                          elevation: 0,
+                          color: Colors.orange[50],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.orange[200]!, width: 1),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(isMobile ? 16 : 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.warning_amber,
+                                      color: Colors.orange[700],
+                                      size: isMobile ? 20 : 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        '${_importResult!.warnings.length} warning(s) detected',
+                                        style: TextStyle(
+                                          fontSize: isMobile ? 14 : 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.orange[900],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                ..._importResult!.warnings.take(3).map(
+                                  (warning) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          size: 16,
+                                          color: Colors.orange[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            warning.message,
+                                            style: TextStyle(
+                                              fontSize: isMobile ? 12 : 13,
+                                              color: Colors.orange[900],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                if (_importResult!.warnings.length > 3)
+                                  Text(
+                                    '+ ${_importResult!.warnings.length - 3} more warnings...',
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 11 : 12,
+                                      color: Colors.orange[700],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: isMobile ? 20 : 24),
+                      ],
 
                       // Required mappings
                       if (requiredMappings.isNotEmpty) ...[
@@ -524,60 +625,40 @@ class _ColumnMappingPreviewScreenState
   }
 
   Future<void> _proceedWithImport() async {
-    // Navigate to results screen directly since we already imported during analysis
-    // In a real scenario, you might want to re-import here with the confirmed mappings
-
-    setState(() => _isProcessing = true);
-
-    try {
-      final service = SheetsImporterService();
-
-      if (widget.importType == ImportType.items) {
-        final result = await service.importItems(
-          fileBytes: widget.fileBytes,
-          fileName: widget.fileName,
-        );
-
-        if (!mounted) return;
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImportResultsScreen<ImportedItemData>(
-              result: result,
-              importType: widget.importType,
-            ),
-          ),
-        );
-      } else {
-        final result = await service.importParties(
-          fileBytes: widget.fileBytes,
-          fileName: widget.fileName,
-        );
-
-        if (!mounted) return;
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImportResultsScreen<ImportedPartyData>(
-              result: result,
-              importType: widget.importType,
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-
+    // Reuse the already imported result - no need to re-import
+    if (_importResult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Import failed: $e'),
+          content: const Text('No import data available'),
           backgroundColor: Colors.red[700],
         ),
       );
+      return;
+    }
 
-      setState(() => _isProcessing = false);
+    // Navigate directly to results screen with the cached result
+    if (!mounted) return;
+
+    if (widget.importType == ImportType.items) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImportResultsScreen<ImportedItemData>(
+            result: _importResult! as ImportResult<List<ImportedItemData>>,
+            importType: widget.importType,
+          ),
+        ),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImportResultsScreen<ImportedPartyData>(
+            result: _importResult! as ImportResult<List<ImportedPartyData>>,
+            importType: widget.importType,
+          ),
+        ),
+      );
     }
   }
 }

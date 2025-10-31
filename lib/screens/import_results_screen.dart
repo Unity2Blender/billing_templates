@@ -121,7 +121,7 @@ class _ImportResultsScreenState<T> extends State<ImportResultsScreen<T>> {
                         children: [
                           _buildStatCard(
                             'Total Rows',
-                            widget.result.metadata.totalRows.toString(),
+                            widget.result.totalRows.toString(),
                             Icons.table_rows,
                             Colors.blue,
                             isMobile,
@@ -147,7 +147,9 @@ class _ImportResultsScreenState<T> extends State<ImportResultsScreen<T>> {
                           const SizedBox(height: 12),
                           _buildStatCard(
                             'Success Rate',
-                            '${widget.result.metadata.successRate.toStringAsFixed(1)}%',
+                            widget.result.totalRows > 0
+                                ? '${((widget.result.successCount / widget.result.totalRows) * 100).toStringAsFixed(1)}%'
+                                : '0.0%',
                             Icons.trending_up,
                             Colors.purple,
                             isMobile,
@@ -160,7 +162,7 @@ class _ImportResultsScreenState<T> extends State<ImportResultsScreen<T>> {
                           Expanded(
                             child: _buildStatCard(
                               'Total Rows',
-                              widget.result.metadata.totalRows.toString(),
+                              widget.result.totalRows.toString(),
                               Icons.table_rows,
                               Colors.blue,
                               isMobile,
@@ -192,7 +194,9 @@ class _ImportResultsScreenState<T> extends State<ImportResultsScreen<T>> {
                           Expanded(
                             child: _buildStatCard(
                               'Success Rate',
-                              '${widget.result.metadata.successRate.toStringAsFixed(1)}%',
+                              widget.result.totalRows > 0
+                                  ? '${((widget.result.successCount / widget.result.totalRows) * 100).toStringAsFixed(1)}%'
+                                  : '0.0%',
                               Icons.trending_up,
                               Colors.purple,
                               isMobile,
