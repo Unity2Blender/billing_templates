@@ -26,6 +26,12 @@ class MBBookTallyTemplate extends InvoiceTemplate {
   bool get supportsColorThemes => false;
 
   @override
+  bool get supportsItemCustomFields => true;
+
+  @override
+  bool get supportsBusinessCustomFields => true;
+
+  @override
   Future<pw.Document> generatePDF({
     required InvoiceData invoice,
     colorTheme,
@@ -89,6 +95,44 @@ class MBBookTallyTemplate extends InvoiceTemplate {
               style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
               textAlign: pw.TextAlign.center,
             ),
+          // Seller custom fields
+          if (invoice.sellerDetails.customFields.isNotEmpty) ...[
+            pw.SizedBox(height: 6),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(6),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.grey400),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'Additional Details',
+                    style: pw.TextStyle(
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.grey800,
+                    ),
+                  ),
+                  pw.SizedBox(height: 3),
+                  ...invoice.sellerDetails.customFields.map((field) =>
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(bottom: 2),
+                      child: pw.Text(
+                        '${field.fieldName}: ${field.displayValue}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: PdfColors.grey700,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -185,6 +229,43 @@ class MBBookTallyTemplate extends InvoiceTemplate {
                     'GSTIN: ${invoice.buyerDetails.gstin}',
                     style: const pw.TextStyle(fontSize: 9),
                   ),
+                // Buyer custom fields
+                if (invoice.buyerDetails.customFields.isNotEmpty) ...[
+                  pw.SizedBox(height: 6),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(6),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey400),
+                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Additional Details',
+                          style: pw.TextStyle(
+                            fontSize: 9,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.grey800,
+                          ),
+                        ),
+                        pw.SizedBox(height: 3),
+                        ...invoice.buyerDetails.customFields.map((field) =>
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.only(bottom: 2),
+                            child: pw.Text(
+                              '${field.fieldName}: ${field.displayValue}',
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                                color: PdfColors.grey700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -261,7 +342,7 @@ class MBBookTallyTemplate extends InvoiceTemplate {
           return pw.TableRow(
             children: [
               _buildTableCell('${index + 1}'),
-              _buildTableCell(item.item.name),
+              _buildItemNameCell(item),
               if (showHSN) _buildTableCell(item.item.hsnCode),
               _buildTableCell('${item.qtyOnBill} ${item.item.qtyUnit}'),
               _buildTableCellRupee(item.partyNetPrice),
@@ -293,6 +374,52 @@ class MBBookTallyTemplate extends InvoiceTemplate {
         amount,
         fontSize: 8,
         color: PdfColors.grey800,
+      ),
+    );
+  }
+
+  // Build item name cell with description and custom fields stacked vertically
+  pw.Widget _buildItemNameCell(item) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(6),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          // Item name
+          pw.Text(
+            item.item.name,
+            style: pw.TextStyle(
+              fontSize: 8,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          // Description (if present)
+          if (item.item.description.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                item.item.description,
+                style: pw.TextStyle(
+                  fontSize: 7,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+          // Custom fields (if any)
+          if (item.customFields.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                '(${item.customFields.map((f) => '${f.fieldName}: ${f.displayValue}').join(', ')})',
+                style: pw.TextStyle(
+                  fontSize: 7,
+                  color: PdfColors.grey600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
