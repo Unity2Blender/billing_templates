@@ -124,36 +124,51 @@ FlutterFlow structs include custom field support via `CustomFieldStruct` (see `r
 - `nameLabel`: Display name for the custom field
 - `formWidgetType`: Input type (text, number, date, etc.)
 - `defaultValueStr`: Default value
-- `isItemField`: `true` for item-level custom fields (rendered in items table)
-- `isBusinessField`: `true` for business-level custom fields (rendered in firm/party sections)
+- `isBusiness`: `true` for business-level custom fields, `false` for item-level
+- `partyRef`: Optional DocumentReference for party-specific fields
 
-**Current State (v1.0):**
-- ✅ Custom field struct schema documented
-- ❌ Custom fields are **not yet supported** in templates
-- ❌ Adapters ignore custom field values
-- ❌ No rendering logic implemented
+**Current State (v2.0+):**
+- ✅ Custom field struct schema documented and implemented
+- ✅ Custom fields **fully supported** in all templates
+- ✅ Adapters extract and process custom field values
+- ✅ Complete rendering logic implemented
+- ✅ 12 comprehensive demo invoices for testing
 
-**Planned Implementation:**
-Custom fields support is a **planned major refactor** (see `TODO-CustomFields.md` for complete implementation plan):
+**Implementation Details:**
 
-1. **Item-Level Custom Fields** (`isItemField: true`)
-   - Rendered as additional columns/rows in items table
-   - Examples: Warranty period, Color, Batch number, Serial number
-   - 3 rendering strategies: columns (wide templates), inline (modern), grouped (compact)
+1. **Item-Level Custom Fields** (`isBusiness: false`)
+   - Rendered inline within item name column (below item name)
+   - Examples: Warranty period, Color, Batch number, Serial number, HUID
+   - Displayed as compact text: "Field1: Value1 • Field2: Value2"
+   - Font size: 7-8pt, grey color for differentiation
+   - All templates support item custom fields
 
-2. **Business-Level Custom Fields** (`isBusinessField: true`)
-   - Rendered in seller (firm) and buyer (party) business details sections
-   - Examples: Vendor code, Credit limit, Tax exemption status
-   - Supports party-specific fields (different fields per customer)
+2. **Business-Level Custom Fields** (`isBusiness: true`)
+   - Rendered in "Additional Details" section after standard fields
+   - Examples: Vendor code, Credit limit, IEC Code, ISO Certification
+   - Displayed in bordered container for visual grouping
+   - Format: "Field Name: Field Value" (one per line)
+   - All templates support business custom fields
 
-**Why Not Implemented Yet:**
-- Requires major template refactoring (dynamic table column handling)
-- Needs adapter updates for field value extraction
-- Requires new internal models (`CustomFieldValue`)
-- Breaking changes require careful migration planning
+3. **Party-Specific Fields**
+   - Different buyers can have different custom fields
+   - Filtered by `partyRef` during adapter conversion
+   - Only matching fields displayed for each party
+   - Seller fields always use firm's fields (no party filtering)
 
-**When It Will Be Added:**
-Estimated for v2.0 release - see `TODO-CustomFields.md` for 3-week implementation timeline and complete technical specification.
+**Field Types Supported:**
+- **text** - Single-line string (e.g., "Warranty: 2 Years")
+- **number** - Numeric with 2 decimal places (e.g., "Weight: 24.50")
+- **date** - DD-MM-YYYY format (e.g., "Expiry: 31-12-2025")
+- **boolean** - Yes/No display (e.g., "Certified: Yes")
+- **select** - Single selection dropdown (e.g., "Color: Blue")
+- **multiselect** - Comma-separated values (e.g., "Features: WiFi, Bluetooth, GPS")
+
+**Backward Compatibility:**
+- 100% backward compatible with existing invoices
+- Empty `customFields` lists default to `[]`
+- Templates conditionally render custom fields sections
+- No breaking changes to public API
 
 ### Integration Pattern
 
@@ -462,6 +477,7 @@ Comprehensive demo data covering:
 4. **Thermal/POS** - Restaurant bills, grocery receipts
 5. **Edge Cases** - Stress tests (15+ items), partial payments, minimal data
 6. **Notes & Terms Testing** - 12 dedicated test invoices for validating notes/terms layouts across all schema types
+7. **Custom Fields Testing** - 12 comprehensive demos covering all field types and use cases
 
 Access via: `DemoInvoices.getAllSamples()` or specific methods like `DemoInvoices.getSampleInvoice3()`
 
@@ -470,10 +486,11 @@ Access via: `DemoInvoices.getAllSamples()` or specific methods like `DemoInvoice
 **Location:** `lib/models/demo_invoice_metadata.dart`, `lib/utils/demo_helpers.dart`
 
 Enhanced demo invoice organization with:
-- Categorization (6 categories: Basic, GST Testing, Document Types, Thermal/POS, Edge Cases, Notes & Terms)
+- Categorization (7 categories: Basic, GST Testing, Document Types, Thermal/POS, Edge Cases, Notes & Terms, Custom Fields)
 - Template recommendations per invoice type
 - Quick info labels for UI display
 - Helper methods for filtering and grouping
+- 12 custom fields demos covering all field types and edge cases
 
 ---
 
@@ -574,9 +591,10 @@ Use `pw.MultiPage` for invoices that may span multiple pages (automatically hand
 ### Models
 - `lib/models/invoice_data.dart` - Main invoice data structure
 - `lib/models/invoice_enums.dart` - InvoiceMode, PaymentMode enums (with "Inv" suffix)
-- `lib/models/business_details.dart` - Business/customer information
-- `lib/models/item_sale_info.dart` - Line item with tax calculations
+- `lib/models/business_details.dart` - Business/customer information with custom fields
+- `lib/models/item_sale_info.dart` - Line item with tax calculations and custom fields
 - `lib/models/bill_summary.dart` - Invoice totals and summary (totalTaxableValue, totalGst, etc.)
+- `lib/models/custom_field_value.dart` - Custom field value model with type-specific formatting
 
 ### Adapters
 - `lib/adapters/invoice_adapter.dart` - Main orchestrator for invoice conversion
@@ -618,7 +636,7 @@ All templates in `lib/templates/`:
 - `references/structTypes/custom_field_struct.dart` - FlutterFlow CustomFieldStruct definition
 
 ### Planning & Roadmap
-- `TODO-CustomFields.md` - Complete specification for custom fields implementation (v2.0)
+- `TODO-CustomFields.md` - Custom fields implementation plan (Phases 1-3 complete, Phase 4 pending)
 
 ---
 
@@ -917,20 +935,49 @@ Test with `DemoInvoices.getStressTestManyItems()` (15 items) to verify multi-pag
 
 ---
 
+## Recent Enhancements (v2.0+)
+
+### Custom Fields Support - ✅ IMPLEMENTED
+
+**Status:** Fully implemented and tested (Phases 1-3 complete, Phase 4 visual testing pending)
+
+**Features Delivered:**
+- ✅ Item-level custom fields rendered inline within item name column
+- ✅ Business-level custom fields in "Additional Details" section
+- ✅ Party-specific custom fields (different fields per customer)
+- ✅ Inline rendering strategy optimized for all templates
+- ✅ Support for 6 field types: text, number, date, boolean, select, multi-select
+- ✅ Type-specific formatting (dates as DD-MM-YYYY, booleans as Yes/No, etc.)
+- ✅ 12 comprehensive demo invoices for testing all scenarios
+- ✅ 100% backward compatible with existing invoices
+- ⏳ Visual regression testing pending (Phase 4)
+
+**Demo Invoices Available:**
+1. Basic item fields (1-2 fields, simple use case)
+2. Multiple item fields (5 fields, all types - jewellery)
+3. Mixed items (some with/without custom fields - pharma)
+4. Edge case (long names, Unicode, special chars)
+5. Seller business fields only (export business)
+6. Buyer business fields only (B2B customer)
+7. Both seller & buyer fields
+8. All 6 field types showcase
+9. Combined item + business fields
+10. Fields with notes + terms (layout conflict test)
+11. A5/Thermal stress test (space-constrained)
+12. Zero custom fields (backward compatibility)
+
+**Technical Implementation:**
+- Model: `lib/models/custom_field_value.dart`
+- Adapters: `ItemAdapter`, `BusinessAdapter` with field extraction
+- Templates: All 7 templates support both item and business custom fields
+- Demo Data: `lib/data/demo_invoices.dart` (12 new methods)
+- Metadata: `lib/utils/demo_helpers.dart` (DemoCategory.customFieldsTesting)
+
+See `lib/adapters/AdapterReadme.md` for complete custom fields documentation.
+
 ## Future Enhancement Ideas
 
-### Planned for v2.0 (See TODO-CustomFields.md)
-
-**Custom Fields Support** - Complete implementation planned:
-- Item-level custom fields rendered in items table (warranty, color, batch number, etc.)
-- Business-level custom fields in firm/party sections (vendor code, credit limit, etc.)
-- Party-specific custom fields (different fields per customer)
-- 3 rendering strategies (columns, inline, grouped) based on template layout
-- Support for 6 field types: text, number, date, boolean, select, multi-select
-- Dynamic table column handling with layout optimization
-- Estimated effort: 3 weeks, breaking changes managed carefully
-
-### Other Enhancement Ideas
+### Potential v3.0 Features
 
 Based on reference documentation analysis:
 

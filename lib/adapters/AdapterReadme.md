@@ -64,9 +64,16 @@ phone            → phone
 email            → email
 ```
 
+**Custom Fields Handling:**
+- `customFieldValues[]` - Extracts business-level custom fields where `isBusiness: true`
+- Field values mapped to `CustomFieldValue` objects
+- Sorted by `displayOrder` for consistent rendering
+- Supports all 6 field types: text, number, date, boolean, select, multiselect
+- Party-specific fields filtered by `partyRef` (if applicable)
+- `fieldRef` DocumentReferences are ignored (schema already denormalized)
+
 **Ignored Fields:**
 - `partyRef` (DocumentReference to party)
-- `customFieldValues` (custom fields - not yet implemented, see `TODO-CustomFields.md` for v2.0 plan)
 - `isCustomer` (DB metadata flag)
 - `isVendor` (DB metadata flag)
 
@@ -104,11 +111,17 @@ lineTotal                       → total (final line amount)
 - Your app must pre-calculate all tax amounts before passing to adapter
 - Templates handle CGST/SGST display split if needed
 
+**Custom Fields Handling:**
+- `customFieldInputs[]` - Extracts item-level custom fields where `isBusiness: false`
+- Field values mapped to `CustomFieldValue` objects
+- Sorted by `displayOrder` for consistent rendering
+- Supports all 6 field types: text, number, date, boolean, select, multiselect
+- `fieldRef` DocumentReferences are ignored (schema already denormalized)
+
 **Ignored Fields:**
 - `item.itemRef` (DocumentReference to item)
 - `item.byFirms[]` (list of firm DocumentReferences)
 - `item.partySpecificPrices` (pricing rules, already applied in `partyNetPrice`)
-- `customFieldInputs` (custom field values - not yet implemented, see `TODO-CustomFields.md` for v2.0 plan)
 
 ---
 
@@ -347,20 +360,131 @@ If you were using older versions, update your code accordingly.
 
 ---
 
-## Future: Custom Fields Support
+## Custom Fields Support (v2.0+)
 
-Custom fields are **planned for v2.0** but not yet implemented. See `TODO-CustomFields.md` for complete specification.
+Custom fields are **now implemented** and fully supported across all adapters and templates.
 
-**When implemented, adapters will:**
-- Extract `customFieldInputs[]` from ItemSaleInfoStruct (item-level fields where `isItemField: true`)
-- Extract `customFieldValues[]` from BusinessDetailsStruct (business-level fields where `isBusinessField: true`)
-- Support party-specific custom fields (filtered by `partyRef`)
-- Convert to new `CustomFieldValue` model with 6 field types (text, number, date, boolean, select, multiselect)
+### CustomFieldValue Model
 
-**Why not in v1.0:**
-- Requires major template refactoring (dynamic table columns)
-- Breaking changes to internal models
-- Complex rendering strategies needed for different templates
+**Location:** `lib/models/custom_field_value.dart`
+
+```dart
+class CustomFieldValue {
+  final String fieldName;      // Display label (e.g., "Warranty", "HUID")
+  final String fieldType;      // 'text', 'number', 'date', 'boolean', 'select', 'multiselect'
+  final dynamic value;         // Actual field value (type varies by fieldType)
+  final int displayOrder;      // Sort order for rendering
+  final bool isRequired;       // Metadata flag
+
+  String get displayValue;     // Type-specific formatted value for PDFs
+}
+```
+
+### Item-Level Custom Fields
+
+**Source:** `ItemSaleInfoStruct.customFieldInputs[]`
+
+**Extraction Logic:**
+1. Filter where `isBusiness == false` (item-level fields only)
+2. Map to `CustomFieldValue` objects
+3. Sort by `displayOrder` (ascending)
+4. Ignore `fieldRef` DocumentReferences
+
+**Example:**
+```dart
+final items = invoice.lines.map((lineStruct) =>
+  ItemAdapter.fromFlutterFlowStruct(lineStruct)
+).toList();
+
+// Result: ItemSaleInfo with customFields populated
+items[0].customFields // [CustomFieldValue(Warranty: '2 Years'), ...]
+```
+
+### Business-Level Custom Fields
+
+**Source:** `BusinessDetailsStruct.customFieldValues[]`
+
+**Extraction Logic:**
+1. Filter where `isBusiness == true` (business-level fields only)
+2. Filter by `partyRef` for party-specific fields (buyer only)
+3. Map to `CustomFieldValue` objects
+4. Sort by `displayOrder` (ascending)
+5. Ignore `fieldRef` DocumentReferences
+
+**Example:**
+```dart
+final seller = BusinessAdapter.fromFlutterFlowStruct(
+  firmStruct.businessDetails,
+  currentPartyRef: null, // Seller doesn't have party-specific fields
+);
+
+final buyer = BusinessAdapter.fromFlutterFlowStruct(
+  invoice.billToParty,
+  currentPartyRef: invoice.billToParty.partyRef, // Filter party-specific
+);
+
+// Result: BusinessDetails with customFields populated
+seller.customFields // [CustomFieldValue(IEC Code: 'IEC123'), ...]
+buyer.customFields  // [CustomFieldValue(Customer Code: 'CUST001'), ...]
+```
+
+### Field Types & Value Extraction
+
+| Field Type    | Struct Property     | Internal Type | Display Format       |
+|---------------|---------------------|---------------|----------------------|
+| text          | stringValue         | String        | As-is                |
+| number        | numberValue         | double        | 2 decimal places     |
+| date          | dateValue           | DateTime      | DD-MM-YYYY           |
+| boolean       | boolValue           | bool          | 'Yes' / 'No'         |
+| select        | stringValue         | String        | As-is                |
+| multiselect   | multiSelectValues   | List\<String\> | Comma-separated      |
+
+### Template Rendering
+
+**Item Custom Fields:**
+- Rendered inline within item name column (below item name)
+- Displayed as compact text: "Field1: Value1 • Field2: Value2"
+- Font size: 7-8pt (smaller than item name)
+- Color: Grey for visual differentiation
+
+**Business Custom Fields:**
+- Rendered in "Additional Details" section
+- Displayed after standard fields (GSTIN, PAN, address, etc.)
+- Bordered container for visual grouping
+- Format: "Field Name: Field Value" (one per line)
+
+### Party-Specific Fields
+
+**Use Case:** Different buyers may have different custom fields (e.g., Customer Code, Credit Limit, Account Manager).
+
+**Implementation:**
+- Buyer custom fields filtered by `billToParty.partyRef`
+- Only fields with matching `partyRef` or `null` partyRef are included
+- Seller custom fields always use firm's fields (no party filtering)
+
+**Example:**
+```dart
+// Party A has fields: Customer Code, Credit Limit
+// Party B has fields: VIP Status, Account Manager
+
+// When generating invoice for Party A:
+buyer.customFields // [CustomerCode, CreditLimit] only
+
+// When generating invoice for Party B:
+buyer.customFields // [VIPStatus, AccountManager] only
+```
+
+### Backward Compatibility
+
+**Empty Custom Fields:**
+- All models default `customFields` to empty list `[]`
+- Templates conditionally render: `if (customFields.isNotEmpty)`
+- No breaking changes for existing invoices
+
+**Legacy Invoices:**
+- Invoices without custom fields render identically to before
+- No visual changes unless custom fields are explicitly provided
+- 100% backward compatible with v1.0 data structures
 
 ---
 
