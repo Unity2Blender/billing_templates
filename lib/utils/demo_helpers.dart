@@ -11,7 +11,7 @@ class DemoHelpers {
         descriptiveLabel: 'Solar Panel (High-Value Single Item)',
         category: DemoCategory.basic,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
         ],
@@ -37,7 +37,7 @@ class DemoHelpers {
         descriptiveLabel: 'Electronics B2B (Multi-Item, Discount)',
         category: DemoCategory.basic,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
         ],
@@ -50,7 +50,7 @@ class DemoHelpers {
         descriptiveLabel: 'Fashion Proforma (Mixed GST Rates)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookModern,
         ],
         quickInfo: '2 items • ₹64.5K • 5% & 10% GST',
@@ -76,7 +76,7 @@ class DemoHelpers {
         recommendedTemplates: [
           TemplateType.mbbookModern,
           TemplateType.modernElite,
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
         ],
         quickInfo: '2 services • ₹1.12L • 18% GST',
         testingPurpose: 'Service-based invoice with bank details',
@@ -103,7 +103,7 @@ class DemoHelpers {
         recommendedTemplates: [
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
         ],
         quickInfo: '2 items • ₹32.9L • CESS ₹3.75L',
         testingPurpose: 'High CESS on luxury automobile',
@@ -116,7 +116,7 @@ class DemoHelpers {
         recommendedTemplates: [
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
         ],
         quickInfo: '2 items • ₹7.4L • 0% Export',
         testingPurpose: 'Export invoice with zero GST',
@@ -153,7 +153,7 @@ class DemoHelpers {
         recommendedTemplates: [
           TemplateType.a5Compact,
           TemplateType.thermal,
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
         ],
         quickInfo: '2 items • ₹9K • No GST',
         testingPurpose: 'Unregistered dealer, no GST charged',
@@ -166,7 +166,7 @@ class DemoHelpers {
         descriptiveLabel: 'Estimate/Quote (Home Renovation)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookModern,
           TemplateType.modernElite,
         ],
@@ -179,7 +179,7 @@ class DemoHelpers {
         descriptiveLabel: 'Purchase Order (Industrial)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
         ],
@@ -192,7 +192,7 @@ class DemoHelpers {
         descriptiveLabel: 'Credit Note (Product Return)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookModern,
           TemplateType.modernElite,
         ],
@@ -205,7 +205,7 @@ class DemoHelpers {
         descriptiveLabel: 'Debit Note (Price Adjustment)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookModern,
         ],
         quickInfo: '1 item • ₹5,600 • Debit Note',
@@ -217,7 +217,7 @@ class DemoHelpers {
         descriptiveLabel: 'Delivery Challan (No Value)',
         category: DemoCategory.documentTypes,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.a5Compact,
         ],
         quickInfo: '2 items • ₹0 • Challan',
@@ -259,7 +259,7 @@ class DemoHelpers {
         recommendedTemplates: [
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
         ],
         quickInfo: '15 items • ₹54.9L • Long text',
         testingPurpose: 'Tests layout with many items and long names',
@@ -270,7 +270,7 @@ class DemoHelpers {
         descriptiveLabel: 'Partial Payment (Advance Received)',
         category: DemoCategory.edgeCases,
         recommendedTemplates: [
-          TemplateType.mbbookDefault,
+          TemplateType.mbbookStylish,
           TemplateType.mbbookTally,
           TemplateType.tallyProfessional,
         ],
@@ -290,6 +290,122 @@ class DemoHelpers {
         quickInfo: '2 items • ₹1,100 • Minimal',
         testingPurpose: 'Tests template with minimal data fields',
         invoiceGetter: DemoInvoices.getMinimalDataInvoice,
+      ),
+
+      // === NOTES & TERMS CONDITIONS TESTING ===
+
+      // Tally Schema Tests
+      DemoInvoiceMetadata(
+        id: 'tally_schema_notes',
+        descriptiveLabel: 'Tally Schema - Notes Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookTally, TemplateType.tallyProfessional],
+        quickInfo: '2 items • ₹1.18L • Notes only',
+        testingPurpose: 'Test Tally schema footer with notes only (no T&C)',
+        invoiceGetter: DemoInvoices.getTallySchemaWithNotes,
+      ),
+      DemoInvoiceMetadata(
+        id: 'tally_schema_terms',
+        descriptiveLabel: 'Tally Schema - Terms Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookTally, TemplateType.tallyProfessional],
+        quickInfo: '2 items • ₹1.18L • T&C only',
+        testingPurpose: 'Test Tally schema footer with terms & conditions only (no notes)',
+        invoiceGetter: DemoInvoices.getTallySchemaWithTerms,
+      ),
+      DemoInvoiceMetadata(
+        id: 'tally_schema_both',
+        descriptiveLabel: 'Tally Schema - Notes + Terms',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookTally, TemplateType.tallyProfessional],
+        quickInfo: '2 items • ₹1.18L • Both notes & T&C',
+        testingPurpose: 'Test Tally schema footer with both notes and T&C (row layout)',
+        invoiceGetter: DemoInvoices.getTallySchemaWithBoth,
+      ),
+      DemoInvoiceMetadata(
+        id: 'tally_schema_none',
+        descriptiveLabel: 'Tally Schema - Neither',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookTally, TemplateType.tallyProfessional],
+        quickInfo: '2 items • ₹1.18L • No notes/T&C',
+        testingPurpose: 'Test Tally schema footer when both notes and T&C are absent',
+        invoiceGetter: DemoInvoices.getTallySchemaWithNone,
+      ),
+
+      // Modern Schema Tests
+      DemoInvoiceMetadata(
+        id: 'modern_schema_notes',
+        descriptiveLabel: 'Modern Schema - Notes Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookStylish, TemplateType.modernElite],
+        quickInfo: '2 items • ₹1.18L • Notes only',
+        testingPurpose: 'Test Modern schema layout with notes only (no T&C)',
+        invoiceGetter: DemoInvoices.getModernSchemaWithNotes,
+      ),
+      DemoInvoiceMetadata(
+        id: 'modern_schema_terms',
+        descriptiveLabel: 'Modern Schema - Terms Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookStylish, TemplateType.modernElite],
+        quickInfo: '2 items • ₹1.18L • T&C only',
+        testingPurpose: 'Test Modern schema layout with terms & conditions only',
+        invoiceGetter: DemoInvoices.getModernSchemaWithTerms,
+      ),
+      DemoInvoiceMetadata(
+        id: 'modern_schema_both',
+        descriptiveLabel: 'Modern Schema - Notes + Terms',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookStylish, TemplateType.modernElite],
+        quickInfo: '2 items • ₹1.18L • Both notes & T&C',
+        testingPurpose: 'Test Modern schema with both notes and T&C (column layout)',
+        invoiceGetter: DemoInvoices.getModernSchemaWithBoth,
+      ),
+      DemoInvoiceMetadata(
+        id: 'modern_schema_none',
+        descriptiveLabel: 'Modern Schema - Neither',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.mbbookStylish, TemplateType.modernElite],
+        quickInfo: '2 items • ₹1.18L • No notes/T&C',
+        testingPurpose: 'Test Modern schema when both notes and T&C are absent',
+        invoiceGetter: DemoInvoices.getModernSchemaWithNone,
+      ),
+
+      // A5/Thermal Schema Tests
+      DemoInvoiceMetadata(
+        id: 'a5_thermal_schema_notes',
+        descriptiveLabel: 'A5/Thermal Schema - Notes Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.a5Compact, TemplateType.thermal],
+        quickInfo: '2 items • ₹1.18L • Notes only',
+        testingPurpose: 'Test A5/Thermal compact format with notes only',
+        invoiceGetter: DemoInvoices.getA5ThermalSchemaWithNotes,
+      ),
+      DemoInvoiceMetadata(
+        id: 'a5_thermal_schema_terms',
+        descriptiveLabel: 'A5/Thermal Schema - Terms Only',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.a5Compact, TemplateType.thermal],
+        quickInfo: '2 items • ₹1.18L • T&C only',
+        testingPurpose: 'Test A5/Thermal compact format with terms & conditions only',
+        invoiceGetter: DemoInvoices.getA5ThermalSchemaWithTerms,
+      ),
+      DemoInvoiceMetadata(
+        id: 'a5_thermal_schema_both',
+        descriptiveLabel: 'A5/Thermal Schema - Notes + Terms',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.a5Compact, TemplateType.thermal],
+        quickInfo: '2 items • ₹1.18L • Both notes & T&C',
+        testingPurpose: 'Test A5/Thermal format with both notes and T&C (space-constrained)',
+        invoiceGetter: DemoInvoices.getA5ThermalSchemaWithBoth,
+      ),
+      DemoInvoiceMetadata(
+        id: 'a5_thermal_schema_none',
+        descriptiveLabel: 'A5/Thermal Schema - Neither',
+        category: DemoCategory.notesAndTermsTesting,
+        recommendedTemplates: [TemplateType.a5Compact, TemplateType.thermal],
+        quickInfo: '2 items • ₹1.18L • No notes/T&C',
+        testingPurpose: 'Test A5/Thermal format when both notes and T&C are absent',
+        invoiceGetter: DemoInvoices.getA5ThermalSchemaWithNone,
       ),
     ];
   }

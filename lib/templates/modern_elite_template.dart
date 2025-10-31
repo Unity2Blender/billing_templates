@@ -39,30 +39,20 @@ class ModernEliteTemplate extends InvoiceTemplate {
     final pdf = pw.Document();
 
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(30),
-        build: (context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            _buildHeader(invoice, theme),
-            pw.SizedBox(height: 20),
-            _buildInvoiceInfo(invoice),
-            pw.SizedBox(height: 20),
-            _buildPartyDetails(invoice),
-            pw.SizedBox(height: 20),
-            _buildItemsTable(invoice, theme),
-            pw.SizedBox(height: 20),
-            _buildPricingSummary(invoice),
-            if (invoice.notesFooter.isNotEmpty) ...[
-              pw.SizedBox(height: 20),
-              _buildNotes(invoice),
-            ],
-            pw.Spacer(),
-            if (invoice.sellerDetails.businessName.isNotEmpty)
-              _buildFooter(invoice),
-          ],
-        ),
+        build: (context) => [
+          _buildHeader(invoice, theme),
+          pw.SizedBox(height: 20),
+          _buildInvoiceInfo(invoice),
+          pw.SizedBox(height: 20),
+          _buildPartyDetails(invoice),
+          pw.SizedBox(height: 20),
+          _buildItemsTable(invoice, theme),
+          pw.SizedBox(height: 20),
+          _buildBottomSection(invoice),
+        ],
       ),
     );
 
@@ -206,6 +196,40 @@ class ModernEliteTemplate extends InvoiceTemplate {
     );
   }
 
+  pw.Widget _buildBottomSection(InvoiceData invoice) {
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        // Left side - Notes (if present)
+        if (invoice.notesFooter.isNotEmpty)
+          pw.Expanded(
+            flex: 1,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Notes:', style: PDFStyles.bodyBold),
+                pw.SizedBox(height: 4),
+                pw.Text(invoice.notesFooter, style: PDFStyles.small),
+              ],
+            ),
+          ),
+        if (invoice.notesFooter.isNotEmpty) pw.SizedBox(width: 20),
+        // Right side - Pricing Summary + Signature
+        pw.Expanded(
+          flex: 1,
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              _buildPricingSummary(invoice),
+              pw.SizedBox(height: 20),
+              _buildFooter(invoice),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   pw.Widget _buildPricingSummary(InvoiceData invoice) {
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -260,17 +284,6 @@ class ModernEliteTemplate extends InvoiceTemplate {
           ),
         ],
       ),
-    );
-  }
-
-  pw.Widget _buildNotes(InvoiceData invoice) {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text('Terms & Conditions:', style: PDFStyles.bodyBold),
-        pw.SizedBox(height: 4),
-        pw.Text(invoice.notesFooter, style: PDFStyles.small),
-      ],
     );
   }
 

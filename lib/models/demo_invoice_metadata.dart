@@ -6,7 +6,8 @@ enum DemoCategory {
   gstTesting('GST Testing', 'Various GST scenarios and tax calculations'),
   documentTypes('Document Types', 'Different document formats and purposes'),
   thermalPos('Thermal/POS', 'Receipt formats for POS systems'),
-  edgeCases('Edge Cases', 'Stress tests and unusual scenarios');
+  edgeCases('Edge Cases', 'Stress tests and unusual scenarios'),
+  notesAndTermsTesting('Notes & Terms Testing', 'Test cases for notes and terms & conditions rendering');
 
   const DemoCategory(this.displayName, this.description);
   final String displayName;
@@ -19,7 +20,7 @@ enum TemplateType {
   mbbookTally('MBBook Tally'),
   tallyProfessional('Tally Professional'),
   mbbookModern('MBBook Modern'),
-  mbbookDefault('MBBook Default'),
+  mbbookStylish('MBBook Stylish'),
   modernElite('Modern Elite'),
   thermal('Thermal Receipt');
 

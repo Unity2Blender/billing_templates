@@ -591,6 +591,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return Icons.print;
       case DemoCategory.edgeCases:
         return Icons.bug_report;
+      case DemoCategory.notesAndTermsTesting:
+        return Icons.notes;
     }
   }
 
@@ -605,14 +607,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return TemplateType.tallyProfessional;
       case 'mbbook_modern':
         return TemplateType.mbbookModern;
-      case 'mbbook_default':
-        return TemplateType.mbbookDefault;
+      case 'mbbook_stylish':
+        return TemplateType.mbbookStylish;
       case 'modern_elite':
         return TemplateType.modernElite;
       case 'thermal_theme2':
         return TemplateType.thermal;
       default:
-        return TemplateType.mbbookDefault;
+        return TemplateType.mbbookStylish;
     }
   }
 }

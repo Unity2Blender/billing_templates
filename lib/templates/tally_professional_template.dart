@@ -46,10 +46,6 @@ class TallyProfessionalTemplate extends InvoiceTemplate {
           _buildTotalsSection(invoice),
           pw.SizedBox(height: 12),
           _buildGSTSummaryTable(invoice),
-          if (invoice.notesFooter.isNotEmpty) ...[
-            pw.SizedBox(height: 10),
-            _buildNotes(invoice),
-          ],
         ],
         footer: (context) => _buildFooter(invoice, context),
       ),
@@ -746,28 +742,6 @@ class TallyProfessionalTemplate extends InvoiceTemplate {
     return (taxAmount / taxableValue) * 100;
   }
 
-  pw.Widget _buildNotes(InvoiceData invoice) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(8),
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.black),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Terms & Conditions',
-            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.Text(
-            invoice.notesFooter,
-            style: const pw.TextStyle(fontSize: 7),
-          ),
-        ],
-      ),
-    );
-  }
-
   pw.Widget _buildFooter(InvoiceData invoice, pw.Context context) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
@@ -775,21 +749,50 @@ class TallyProfessionalTemplate extends InvoiceTemplate {
         border: pw.Border.all(color: PdfColors.black, width: 1.5),
       ),
       child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.end,
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.end,
-            children: [
-              pw.Text(
-                'for ${invoice.sellerDetails.businessName}',
-                style: const pw.TextStyle(fontSize: 8),
-              ),
-              pw.SizedBox(height: 25),
-              pw.Text(
-                'Authorized Signatory',
-                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-              ),
-            ],
+          // Left side - Notes or T&C
+          pw.Expanded(
+            flex: 1,
+            child: invoice.notesFooter.isNotEmpty
+                ? pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Notes:',
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        invoice.notesFooter,
+                        style: const pw.TextStyle(fontSize: 8),
+                      ),
+                    ],
+                  )
+                : pw.Text(
+                    'Terms & Conditions Apply',
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+          ),
+          pw.SizedBox(width: 12),
+          // Right side - Signature
+          pw.Expanded(
+            flex: 1,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                pw.Text(
+                  'for ${invoice.sellerDetails.businessName}',
+                  style: const pw.TextStyle(fontSize: 8),
+                ),
+                pw.SizedBox(height: 25),
+                pw.Text(
+                  'Authorized Signatory',
+                  style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ],
       ),

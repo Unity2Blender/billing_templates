@@ -2173,6 +2173,215 @@ class DemoInvoices {
     );
   }
 
+  // === NOTES & TERMS CONDITIONS TESTING ===
+
+  static InvoiceData _getNotesTermsTestBase({
+    required String schemaLabel,
+    String? notes,
+    List<String> paymentTerms = const [],
+  }) {
+    final seller = BusinessDetails(
+      businessName: 'Test Company Pvt Ltd',
+      phone: '+91 98765 43210',
+      email: 'test@company.com',
+      gstin: '27TEST1234C1D2',
+      pan: 'TEST1234C',
+      state: 'Maharashtra',
+      district: 'Mumbai',
+      businessAddress: 'Test Address, Mumbai - 400001',
+    );
+
+    final buyer = BusinessDetails(
+      businessName: 'Customer Company Ltd',
+      phone: '+91 87654 32109',
+      email: 'customer@company.com',
+      gstin: '27CUST5678D2E3',
+      pan: 'CUST5678D',
+      state: 'Maharashtra',
+      district: 'Pune',
+      businessAddress: 'Customer Address, Pune - 411001',
+    );
+
+    final items = [
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Test Product A',
+          description: 'Sample product for template testing',
+          hsnCode: '84713010',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 10000.00,
+        qtyOnBill: 5,
+        subtotal: 50000.00,
+        taxableValue: 50000.00,
+        csgst: 4500.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 59000.00,
+      ),
+      ItemSaleInfo(
+        item: ItemBasicInfo(
+          name: 'Test Product B',
+          description: 'Another sample product',
+          hsnCode: '85171200',
+          qtyUnit: 'Pcs',
+        ),
+        partyNetPrice: 5000.00,
+        qtyOnBill: 10,
+        subtotal: 50000.00,
+        taxableValue: 50000.00,
+        csgst: 4500.00,
+        grossTaxCharged: 18.0,
+        lineTotal: 59000.00,
+      ),
+    ];
+
+    final billSummary = BillSummary(
+      totalTaxableValue: 100000.00,
+      totalGst: 18000.00,
+      totalLineItemsAfterTaxes: 118000.00,
+      dueBalancePayable: 118000.00,
+    );
+
+    return InvoiceData(
+      invoiceNumber: 'TEST-$schemaLabel',
+      invoiceMode: InvoiceMode.salesInv,
+      issueDate: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      sellerDetails: seller,
+      buyerDetails: buyer,
+      lineItems: items,
+      billSummary: billSummary,
+      paymentMode: PaymentMode.bankTransfer,
+      notesFooter: notes ?? '',
+      paymentTerms: paymentTerms,
+    );
+  }
+
+  // === TALLY SCHEMA TESTS (MBBook Tally, Tally Professional) ===
+
+  static InvoiceData getTallySchemaWithNotes() => _getNotesTermsTestBase(
+        schemaLabel: 'TALLY-NOTES',
+        notes: 'NOTES: Testing Tally schema with notes only.\n'
+            'This should appear in the footer section.\n'
+            'Verify proper layout and spacing.',
+      );
+
+  static InvoiceData getTallySchemaWithTerms() => _getNotesTermsTestBase(
+        schemaLabel: 'TALLY-TERMS',
+        paymentTerms: [
+          'Payment due within 30 days',
+          'Late payment charges: 2% per month',
+          'Subject to Mumbai jurisdiction',
+        ],
+      );
+
+  static InvoiceData getTallySchemaWithBoth() => _getNotesTermsTestBase(
+        schemaLabel: 'TALLY-BOTH',
+        notes: 'NOTES: Testing Tally schema with both notes and terms.\n'
+            'Notes section should display alongside terms & conditions.\n'
+            'Verify proper row/column layout.',
+        paymentTerms: [
+          'Payment Terms: Net 30 days',
+          'Goods once sold will not be taken back',
+          'Subject to Mumbai jurisdiction',
+          'E&OE (Errors and Omissions Excepted)',
+        ],
+      );
+
+  static InvoiceData getTallySchemaWithNone() => _getNotesTermsTestBase(
+        schemaLabel: 'TALLY-NONE',
+      );
+
+  // === MODERN SCHEMA TESTS (MBBook Stylish, Modern Elite) ===
+
+  static InvoiceData getModernSchemaWithNotes() => _getNotesTermsTestBase(
+        schemaLabel: 'MODERN-NOTES',
+        notes: 'NOTES: Testing Modern schema with notes only.\n'
+            'Modern templates typically have cleaner layouts.\n'
+            'Verify that notes appear prominently.',
+      );
+
+  static InvoiceData getModernSchemaWithTerms() => _getNotesTermsTestBase(
+        schemaLabel: 'MODERN-TERMS',
+        paymentTerms: [
+          'Payment due within 30 days from invoice date',
+          'Late payment will attract 2% monthly interest',
+          'Delivery within 15 business days',
+          'Warranty as per manufacturer terms',
+        ],
+      );
+
+  static InvoiceData getModernSchemaWithBoth() => _getNotesTermsTestBase(
+        schemaLabel: 'MODERN-BOTH',
+        notes: 'NOTES: Testing Modern schema with both notes and T&C.\n'
+            'Modern templates should display both sections elegantly.\n'
+            'Verify alignment and visual hierarchy.',
+        paymentTerms: [
+          'Payment Terms: Net 30 days',
+          'Bank charges borne by the buyer',
+          'All disputes subject to Mumbai jurisdiction',
+          'Goods remain our property until full payment',
+        ],
+      );
+
+  static InvoiceData getModernSchemaWithNone() => _getNotesTermsTestBase(
+        schemaLabel: 'MODERN-NONE',
+      );
+
+  // === A5/THERMAL SCHEMA TESTS (A5 Compact, Thermal) ===
+
+  static InvoiceData getA5ThermalSchemaWithNotes() => _getNotesTermsTestBase(
+        schemaLabel: 'A5-NOTES',
+        notes: 'NOTES: Testing A5/Thermal with notes.\n'
+            'These formats are typically space-constrained.\n'
+            'Verify compact yet readable display.',
+      );
+
+  static InvoiceData getA5ThermalSchemaWithTerms() => _getNotesTermsTestBase(
+        schemaLabel: 'A5-TERMS',
+        paymentTerms: [
+          'Payment due within 15 days',
+          'No returns without prior approval',
+          'Thank you for your business!',
+        ],
+      );
+
+  static InvoiceData getA5ThermalSchemaWithBoth() => _getNotesTermsTestBase(
+        schemaLabel: 'A5-BOTH',
+        notes: 'NOTES: Testing A5/Thermal with both.\n'
+            'Space is limited in these formats.\n'
+            'Verify proper text wrapping.',
+        paymentTerms: [
+          'Payment: Cash/UPI/Card accepted',
+          'Exchange within 7 days with receipt',
+          'Visit again!',
+        ],
+      );
+
+  static InvoiceData getA5ThermalSchemaWithNone() => _getNotesTermsTestBase(
+        schemaLabel: 'A5-NONE',
+      );
+
+  static List<InvoiceData> getNotesAndTermsTestingInvoices() {
+    return [
+      // Tally Schema Tests
+      getTallySchemaWithNotes(),
+      getTallySchemaWithTerms(),
+      getTallySchemaWithBoth(),
+      getTallySchemaWithNone(),
+      // Modern Schema Tests
+      getModernSchemaWithNotes(),
+      getModernSchemaWithTerms(),
+      getModernSchemaWithBoth(),
+      getModernSchemaWithNone(),
+      // A5/Thermal Schema Tests
+      getA5ThermalSchemaWithNotes(),
+      getA5ThermalSchemaWithTerms(),
+      getA5ThermalSchemaWithBoth(),
+      getA5ThermalSchemaWithNone(),
+    ];
+  }
+
   static List<InvoiceData> getAllSamples() {
     return [
       getSampleInvoice1(),
@@ -2197,6 +2406,7 @@ class DemoInvoices {
       getStressTestManyItems(),
       getPartialPaymentScenario(),
       getMinimalDataInvoice(),
+      ...getNotesAndTermsTestingInvoices(),
     ];
   }
 }

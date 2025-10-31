@@ -73,7 +73,7 @@ class PDFStyles {
     color: PdfColors.grey800,
   );
 
-  static const pw.TextStyle bodyBold = pw.TextStyle(
+  static final pw.TextStyle bodyBold = pw.TextStyle(
     fontSize: 10,
     fontWeight: pw.FontWeight.bold,
     color: PdfColors.grey800,
@@ -84,7 +84,7 @@ class PDFStyles {
     color: PdfColors.grey600,
   );
 
-  static const pw.TextStyle smallBold = pw.TextStyle(
+  static final pw.TextStyle smallBold = pw.TextStyle(
     fontSize: 8,
     fontWeight: pw.FontWeight.bold,
     color: PdfColors.grey600,

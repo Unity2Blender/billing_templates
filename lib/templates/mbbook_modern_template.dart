@@ -47,13 +47,8 @@ class MBBookModernTemplate extends InvoiceTemplate {
           pw.SizedBox(height: 20),
           _buildItemsTable(invoice, theme),
           pw.SizedBox(height: 20),
-          _buildSummary(invoice, theme),
-          if (invoice.notesFooter.isNotEmpty) ...[
-            pw.SizedBox(height: 15),
-            _buildNotes(invoice),
-          ],
+          _buildBottomSection(invoice, theme),
         ],
-        footer: (context) => _buildFooter(invoice, theme),
       ),
     );
 
@@ -324,49 +319,90 @@ class MBBookModernTemplate extends InvoiceTemplate {
     );
   }
 
-  pw.Widget _buildSummary(InvoiceData invoice, InvoiceColorTheme theme) {
+  pw.Widget _buildBottomSection(InvoiceData invoice, InvoiceColorTheme theme) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Expanded(child: pw.Container()),
-        pw.Container(
-          width: 250,
-          padding: const pw.EdgeInsets.all(15),
-          decoration: pw.BoxDecoration(
-            border: pw.Border.all(color: theme.pdfPrimaryColor, width: 2),
-            borderRadius: pw.BorderRadius.circular(6),
-          ),
-          child: pw.Column(
-            children: [
-              _buildSummaryRow('Subtotal', invoice.billSummary.totalTaxableValue),
-              pw.SizedBox(height: 5),
-              if (invoice.isIntraState) ...[
-                _buildSummaryRow('CGST', invoice.billSummary.totalGst / 2),
-                _buildSummaryRow('SGST', invoice.billSummary.totalGst / 2),
-              ] else ...[
-                _buildSummaryRow('IGST', invoice.billSummary.totalGst),
-              ],
-              pw.Divider(thickness: 1.5, color: theme.pdfPrimaryColor),
-              _buildSummaryRow(
-                'TOTAL',
-                invoice.billSummary.totalLineItemsAfterTaxes,
-                isBold: true,
-                color: theme.pdfPrimaryColor,
+        // Left side - Notes (if present)
+        if (invoice.notesFooter.isNotEmpty)
+          pw.Expanded(
+            flex: 1,
+            child: pw.Container(
+              padding: const pw.EdgeInsets.all(12),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.grey100,
+                borderRadius: pw.BorderRadius.circular(6),
               ),
-              if (invoice.amountPaid > 0) ...[
-                pw.SizedBox(height: 5),
-                _buildSummaryRow('Paid', invoice.amountPaid),
-                _buildSummaryRow(
-                  'Balance Due',
-                  invoice.billSummary.totalLineItemsAfterTaxes - invoice.amountPaid,
-                  isBold: true,
-                  color: PdfColors.red,
-                ),
-              ],
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'Notes',
+                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    invoice.notesFooter,
+                    style: const pw.TextStyle(fontSize: 9),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        if (invoice.notesFooter.isNotEmpty) pw.SizedBox(width: 20),
+        // Right side - Summary + Signature
+        pw.Expanded(
+          flex: 1,
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              _buildSummary(invoice, theme),
+              pw.SizedBox(height: 20),
+              _buildFooter(invoice, theme),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  pw.Widget _buildSummary(InvoiceData invoice, InvoiceColorTheme theme) {
+    return pw.Container(
+      width: 250,
+      padding: const pw.EdgeInsets.all(15),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: theme.pdfPrimaryColor, width: 2),
+        borderRadius: pw.BorderRadius.circular(6),
+      ),
+      child: pw.Column(
+        children: [
+          _buildSummaryRow('Subtotal', invoice.billSummary.totalTaxableValue),
+          pw.SizedBox(height: 5),
+          if (invoice.isIntraState) ...[
+            _buildSummaryRow('CGST', invoice.billSummary.totalGst / 2),
+            _buildSummaryRow('SGST', invoice.billSummary.totalGst / 2),
+          ] else ...[
+            _buildSummaryRow('IGST', invoice.billSummary.totalGst),
+          ],
+          pw.Divider(thickness: 1.5, color: theme.pdfPrimaryColor),
+          _buildSummaryRow(
+            'TOTAL',
+            invoice.billSummary.totalLineItemsAfterTaxes,
+            isBold: true,
+            color: theme.pdfPrimaryColor,
+          ),
+          if (invoice.amountPaid > 0) ...[
+            pw.SizedBox(height: 5),
+            _buildSummaryRow('Paid', invoice.amountPaid),
+            _buildSummaryRow(
+              'Balance Due',
+              invoice.billSummary.totalLineItemsAfterTaxes - invoice.amountPaid,
+              isBold: true,
+              color: PdfColors.red,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -400,30 +436,6 @@ class MBBookModernTemplate extends InvoiceTemplate {
             color: color ?? PdfColors.grey800,
           ),
       ],
-    );
-  }
-
-  pw.Widget _buildNotes(InvoiceData invoice) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(12),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
-        borderRadius: pw.BorderRadius.circular(6),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Notes',
-            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 4),
-          pw.Text(
-            invoice.notesFooter,
-            style: const pw.TextStyle(fontSize: 9),
-          ),
-        ],
-      ),
     );
   }
 
