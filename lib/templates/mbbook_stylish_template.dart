@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import '../models/invoice_data.dart';
+import '../models/item_sale_info.dart';
 import '../utils/invoice_colors.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/pdf_font_helpers.dart';
@@ -21,6 +22,12 @@ class MBBookStylishTemplate extends InvoiceTemplate {
   @override
   String get screenshotPath =>
       'references/templateScreenshots/MBBook_Stylish.jpg';
+
+  @override
+  bool get supportsItemCustomFields => true;
+
+  @override
+  bool get supportsBusinessCustomFields => true;
 
   @override
   Future<pw.Document> generatePDF({
@@ -109,6 +116,43 @@ class MBBookStylishTemplate extends InvoiceTemplate {
             'PAN Number: ${invoice.sellerDetails.pan}',
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey800),
           ),
+
+        // Seller custom fields
+        if (invoice.sellerDetails.customFields.isNotEmpty)
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 8),
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey400),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Additional Details',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                ...invoice.sellerDetails.customFields.map((field) =>
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 2),
+                    child: pw.Text(
+                      '${field.fieldName}: ${field.displayValue}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -184,6 +228,43 @@ class MBBookStylishTemplate extends InvoiceTemplate {
             'PAN Number: ${invoice.buyerDetails.pan}',
             style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800),
           ),
+
+        // Buyer custom fields
+        if (invoice.buyerDetails.customFields.isNotEmpty)
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 8),
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey400),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Additional Details',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                ...invoice.buyerDetails.customFields.map((field) =>
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 2),
+                    child: pw.Text(
+                      '${field.fieldName}: ${field.displayValue}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -222,7 +303,7 @@ class MBBookStylishTemplate extends InvoiceTemplate {
 
             return pw.TableRow(
               children: [
-                _buildTableCell(item.item.name),
+                _buildItemNameCell(item),
                 _buildTableCell(
                   '${item.qtyOnBill.toStringAsFixed(0)} ${item.item.qtyUnit}',
                   align: pw.TextAlign.right,
@@ -273,6 +354,54 @@ class MBBookStylishTemplate extends InvoiceTemplate {
         amount,
         fontSize: 9,
         align: align,
+      ),
+    );
+  }
+
+  /// Builds the item name cell with description and custom fields stacked vertically
+  pw.Widget _buildItemNameCell(ItemSaleInfo item) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(6),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          // Item name
+          pw.Text(
+            item.item.name,
+            style: pw.TextStyle(
+              fontSize: 9,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+
+          // Description (if present)
+          if (item.item.description.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                item.item.description,
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+
+          // Custom fields (if any)
+          if (item.customFields.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2),
+              child: pw.Text(
+                '(${item.customFields.map((f) => '${f.fieldName}: ${f.displayValue}').join(', ')})',
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  color: PdfColors.grey600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
