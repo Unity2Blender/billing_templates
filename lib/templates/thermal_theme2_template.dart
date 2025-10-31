@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import '../models/invoice_data.dart';
 import '../models/invoice_enums.dart';
+import '../models/item_sale_info.dart';
 import '../utils/pdf_font_helpers.dart';
 import 'invoice_template_base.dart';
 
@@ -23,6 +24,12 @@ class ThermalTheme2Template extends InvoiceTemplate {
 
   @override
   bool get supportsColorThemes => false;
+
+  @override
+  bool get supportsItemCustomFields => true;
+
+  @override
+  bool get supportsBusinessCustomFields => true;
 
   @override
   Future<pw.Document> generatePDF({
@@ -96,6 +103,21 @@ class ThermalTheme2Template extends InvoiceTemplate {
             style: const pw.TextStyle(fontSize: 8),
             textAlign: pw.TextAlign.center,
           ),
+
+        // Seller custom fields (ultra-compact for thermal)
+        if (invoice.sellerDetails.customFields.isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          ...invoice.sellerDetails.customFields.map((field) =>
+            pw.Text(
+              '${field.fieldName}: ${field.displayValue}',
+              style: pw.TextStyle(
+                fontSize: 7,
+                color: PdfColors.grey700,
+              ),
+              textAlign: pw.TextAlign.center,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -148,6 +170,20 @@ class ThermalTheme2Template extends InvoiceTemplate {
             'GSTIN: ${invoice.buyerDetails.gstin}',
             style: const pw.TextStyle(fontSize: 8),
           ),
+
+        // Buyer custom fields (ultra-compact for thermal)
+        if (invoice.buyerDetails.customFields.isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          ...invoice.buyerDetails.customFields.map((field) =>
+            pw.Text(
+              '${field.fieldName}: ${field.displayValue}',
+              style: pw.TextStyle(
+                fontSize: 7,
+                color: PdfColors.grey700,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -205,10 +241,39 @@ class ThermalTheme2Template extends InvoiceTemplate {
         ...invoice.lineItems.map((item) => pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
+                // Item name
                 pw.Text(
                   item.item.name,
                   style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
                 ),
+
+                // Description (if present)
+                if (item.item.description.isNotEmpty)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(top: 1),
+                    child: pw.Text(
+                      item.item.description,
+                      style: pw.TextStyle(
+                        fontSize: 7,
+                        fontStyle: pw.FontStyle.italic,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ),
+
+                // Custom fields (if any)
+                if (item.customFields.isNotEmpty)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(top: 1),
+                    child: pw.Text(
+                      '(${item.customFields.map((f) => '${f.fieldName}: ${f.displayValue}').join(', ')})',
+                      style: pw.TextStyle(
+                        fontSize: 7,
+                        color: PdfColors.grey600,
+                      ),
+                    ),
+                  ),
+
                 pw.SizedBox(height: 2),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
