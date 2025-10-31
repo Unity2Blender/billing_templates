@@ -1,0 +1,16 @@
+Item Name,HSN Code,Price,GST Rate %,Qty Unit,Stock Qty,Description
+Wireless Mouse,8471,899.00,18,Nos,45,Ergonomic wireless mouse with USB
+Keyboard USB,8471,1299.00,18,Nos,30,Standard USB keyboard 104 keys
+,8471,599.00,18,Nos,20,INVALID: Missing name - should be skipped
+Monitor 24 inch,8528,12000.00,18,Nos,15,LED monitor full HD 1920x1080
+Webcam HD,8525,2199.00,18,Nos,28,1080p HD webcam with mic
+USB Hub 4 Port,8517,450.00,18,Nos,50,4-port USB 3.0 hub
+Mouse Pad Large,3926,not-a-number,12,Nos,100,INVALID: Price is text not number
+External HDD 1TB,8471,4500.00,18,Nos,35,Portable external hard drive 1TB
+HDMI Cable 2m,8544,399.00,18,Nos,89,High-speed HDMI 2.0 cable
+Laptop Bag,4202,1299.00,-5,Nos,40,INVALID: Negative GST rate
+Phone Stand,3926,250.00,12,Nos,120,Adjustable phone holder stand
+,9608,25.00,12,Pcs,200,INVALID: Empty name field
+Desk Lamp LED,9405,899.00,18,Nos,60,Adjustable LED desk lamp with dimmer
+Screen Cleaner,3402,150.00,18,Bottle,80,LCD/LED screen cleaning solution
+Cable Organizer,@#$%,199.00,12,Nos,90,INVALID: HSN contains only special chars

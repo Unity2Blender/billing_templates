@@ -1,0 +1,13 @@
+Business Name,Phone,Email,GSTIN,PAN,State,District,Address
+Tech Solutions India Pvt Ltd,9876543210,contact@techsolutions.in,27AABCT1234F1Z5,AABCT1234F,Maharashtra,Mumbai,"123 Park Street, Andheri West, Mumbai 400058"
+Global Traders & Co,9988776655,sales@globaltraders.com,29AACGB5678C1ZN,AACGB5678C,Karnataka,Bangalore,"456 MG Road, Bangalore 560001"
+Retail Hub Enterprises,,,33AADHR8901M1ZP,AADHR8901M,Tamil Nadu,Chennai,"EDGE CASE: Missing phone and email - optional fields"
+Express Logistics Services,9876501234,contact@expresslog.in,06AABCE4321A1Z8,AABCE4321A,Haryana,Gurgaon,"Plot 45, Sector 18, Gurgaon 122001"
+Premium Wholesale Mart,9123456789,wholesale@premium.com,09AAFCP6789B1ZR,AAFCP6789B,Uttar Pradesh,Noida,"B-23 Sector 62, Noida 201301"
+Smart Enterprises Limited,8765432109,info@smartent.in,INVALIDGSTIN123,AAKCS2345D,Gujarat,Ahmedabad,"EDGE CASE: Invalid GSTIN format - wrong structure"
+Modern Supplies & Trading,9988112233,contact@modernsupply.com,19AABCM5678E1ZT,AABCM5678E,West Bengal,Kolkata,"67 Park Street, Kolkata 700016"
+Digital Store Online,9876123456,sales@digitalstore.in,07AACDS9012F1ZW,AACDS9012F,Delhi,New Delhi,"45 Connaught Place, New Delhi 110001"
+Quality Imports Exports,8899001122,import@quality.com,36AADQI3456G1ZY,aadqi3456g,Telangana,Hyderabad,"EDGE CASE: PAN in lowercase - should be uppercase"
+Regional Distributors Network,9765432108,regional@distribs.in,27AAERD7890H1ZV,AAERD7890H,Maharashtr,Pune,"EDGE CASE: State name typo - Maharashtr instead of Maharashtra"
+International Trading Company LLC,+1-555-0123,intl@trading.com,99ZZZZZ9999Z9Z9,ZZZZZ9999Z,California,San Francisco,"EDGE CASE: International party - non-Indian state"
+Very Long Business Name Corporation Private Limited Enterprises India Suppliers and Distributors,9123456780,longname@business.com,24AABVL1234C1Z9,AABVL1234C,Gujarat,Ahmedabad,"EDGE CASE: Very long business name testing truncation and display (100+ characters)"
