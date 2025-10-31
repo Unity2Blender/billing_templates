@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import '../models/invoice_data.dart';
 import '../models/invoice_enums.dart';
+import '../models/item_sale_info.dart';
 import '../utils/pdf_font_helpers.dart';
 import 'invoice_template_base.dart';
 
@@ -22,6 +23,12 @@ class A5CompactTemplate extends InvoiceTemplate {
 
   @override
   bool get supportsColorThemes => false;
+
+  @override
+  bool get supportsItemCustomFields => true;
+
+  @override
+  bool get supportsBusinessCustomFields => true;
 
   @override
   Future<pw.Document> generatePDF({
@@ -88,6 +95,37 @@ class A5CompactTemplate extends InvoiceTemplate {
                   invoice.sellerDetails.state,
                   style: const pw.TextStyle(fontSize: 8),
                 ),
+
+                // Seller custom fields (compact layout)
+                if (invoice.sellerDetails.customFields.isNotEmpty)
+                  pw.Container(
+                    margin: const pw.EdgeInsets.only(top: 4),
+                    padding: const pw.EdgeInsets.all(4),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Additional:',
+                          style: pw.TextStyle(
+                            fontSize: 7,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                        ...invoice.sellerDetails.customFields.map((field) =>
+                          pw.Text(
+                            '${field.fieldName}: ${field.displayValue}',
+                            style: pw.TextStyle(
+                              fontSize: 6,
+                              color: PdfColors.grey700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -138,6 +176,37 @@ class A5CompactTemplate extends InvoiceTemplate {
                 invoice.buyerDetails.phone,
                 style: const pw.TextStyle(fontSize: 7),
               ),
+
+              // Buyer custom fields (compact layout)
+              if (invoice.buyerDetails.customFields.isNotEmpty)
+                pw.Container(
+                  margin: const pw.EdgeInsets.only(top: 4),
+                  padding: const pw.EdgeInsets.all(4),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Additional:',
+                        style: pw.TextStyle(
+                          fontSize: 7,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      ...invoice.buyerDetails.customFields.map((field) =>
+                        pw.Text(
+                          '${field.fieldName}: ${field.displayValue}',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            color: PdfColors.grey700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -193,7 +262,7 @@ class A5CompactTemplate extends InvoiceTemplate {
         // Items
         ...invoice.lineItems.map((item) => pw.TableRow(
               children: [
-                _buildTableCell(item.item.name),
+                _buildItemNameCell(item),
                 if (showHSN) _buildTableCell(item.item.hsnCode),
                 _buildTableCell(item.qtyOnBill.toString()),
                 _buildTableCellRupee(item.partyNetPrice),
@@ -224,6 +293,55 @@ class A5CompactTemplate extends InvoiceTemplate {
         amount,
         fontSize: 7,
         color: PdfColors.grey800,
+      ),
+    );
+  }
+
+  /// Builds the item name cell with description and custom fields stacked vertically
+  /// Uses smaller fonts for compact A5 layout
+  pw.Widget _buildItemNameCell(ItemSaleInfo item) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(4),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        mainAxisSize: pw.MainAxisSize.min,
+        children: [
+          // Item name
+          pw.Text(
+            item.item.name,
+            style: pw.TextStyle(
+              fontSize: 7,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+
+          // Description (if present)
+          if (item.item.description.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 1),
+              child: pw.Text(
+                item.item.description,
+                style: pw.TextStyle(
+                  fontSize: 6,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ),
+
+          // Custom fields (if any)
+          if (item.customFields.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 1),
+              child: pw.Text(
+                '(${item.customFields.map((f) => '${f.fieldName}: ${f.displayValue}').join(', ')})',
+                style: pw.TextStyle(
+                  fontSize: 6,
+                  color: PdfColors.grey600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
