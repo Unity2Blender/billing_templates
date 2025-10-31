@@ -39,6 +39,11 @@ dependencies:
   # Fonts
   google_fonts: ^6.2.1
 
+  # Sheets Import
+  csv: ^6.0.0
+  excel: ^4.0.3
+  fuzzywuzzy: ^1.1.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

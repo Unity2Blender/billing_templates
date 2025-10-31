@@ -31,10 +31,25 @@
 /// - `a5_compact` - A5 format for retail
 /// - `thermal_theme2` - Thermal printer format
 ///
+/// **Sheets Importer (New):**
+/// ```dart
+/// // Import items from CSV/Excel
+/// final result = await SheetsImporterService().importItems(
+///   fileBytes: csvBytes,
+///   fileName: 'products.csv',
+/// );
+///
+/// if (result.isSuccess) {
+///   for (final item in result.data!) {
+///     // Convert and upload to Firestore
+///   }
+/// }
+/// ```
+///
 /// **See Also:**
 /// - [PubSpecImportGuide.md] for detailed integration instructions
 /// - [CLAUDE.md] for architecture and implementation details
-library billing_templates;
+library;
 
 // ============================================================================
 // PUBLIC API - Adapters
@@ -48,10 +63,11 @@ export 'adapters/invoice_adapter.dart';
 // ============================================================================
 // PUBLIC API - Services
 // ============================================================================
-// Core services for PDF generation and template management
+// Core services for PDF generation, template management, and data import
 
 export 'services/pdf_service.dart';
 export 'services/template_registry.dart';
+export 'services/sheets_importer_service.dart';
 
 // ============================================================================
 // PUBLIC API - Utilities
@@ -59,6 +75,18 @@ export 'services/template_registry.dart';
 // Color themes for templates that support customization
 
 export 'utils/invoice_colors.dart' show InvoiceThemes, InvoiceColorTheme;
+
+// ============================================================================
+// PUBLIC API - Import Models & Configuration
+// ============================================================================
+// Models and configuration for sheets import functionality
+
+export 'models/import_result.dart';
+export 'models/import_config.dart';
+export 'models/column_mapping.dart';
+export 'importers/item_sheet_importer.dart' show ImportedItemData;
+export 'importers/party_sheet_importer.dart' show ImportedPartyData;
+export 'importers/column_matcher.dart' show ImportException, ImportExceptionType;
 
 // ============================================================================
 // INTERNAL (NOT EXPORTED)
