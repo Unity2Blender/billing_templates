@@ -320,11 +320,14 @@ class MBBookModernTemplate extends InvoiceTemplate {
   }
 
   pw.Widget _buildBottomSection(InvoiceData invoice, InvoiceColorTheme theme) {
+    final hasNotes = invoice.notesFooter.isNotEmpty;
+    final hasTerms = invoice.paymentTerms.isNotEmpty;
+
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        // Left side - Notes (if present)
-        if (invoice.notesFooter.isNotEmpty)
+        // Left side - Notes and/or Terms & Conditions
+        if (hasNotes || hasTerms)
           pw.Expanded(
             flex: 1,
             child: pw.Container(
@@ -336,20 +339,39 @@ class MBBookModernTemplate extends InvoiceTemplate {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(
-                    'Notes',
-                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
-                  ),
-                  pw.SizedBox(height: 4),
-                  pw.Text(
-                    invoice.notesFooter,
-                    style: const pw.TextStyle(fontSize: 9),
-                  ),
+                  // Notes section
+                  if (hasNotes) ...[
+                    pw.Text(
+                      'Notes',
+                      style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                    ),
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      invoice.notesFooter,
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
+                    if (hasTerms) pw.SizedBox(height: 8),
+                  ],
+                  // Terms & Conditions section
+                  if (hasTerms) ...[
+                    pw.Text(
+                      'Terms & Conditions',
+                      style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                    ),
+                    pw.SizedBox(height: 4),
+                    ...invoice.paymentTerms.map((term) => pw.Padding(
+                          padding: const pw.EdgeInsets.only(bottom: 2),
+                          child: pw.Text(
+                            '• $term',
+                            style: const pw.TextStyle(fontSize: 9),
+                          ),
+                        )),
+                  ],
                 ],
               ),
             ),
           ),
-        if (invoice.notesFooter.isNotEmpty) pw.SizedBox(width: 20),
+        if (hasNotes || hasTerms) pw.SizedBox(width: 20),
         // Right side - Summary + Signature
         pw.Expanded(
           flex: 1,

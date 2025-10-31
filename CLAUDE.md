@@ -744,6 +744,49 @@ In `ItemSaleInfo`, the `csgst` field represents:
 
 **Important:** The adapter does NOT split CGST/SGST - it passes through the combined value. Templates handle display splitting if needed.
 
+### Footer Element Handling (Notes, Terms, Signatures)
+
+**Critical:** Templates must carefully handle THREE distinct footer elements:
+1. **Notes** (`invoice.notesFooter` - String)
+2. **Terms & Conditions** (`invoice.paymentTerms` - List<String>)
+3. **Signature Section** (static, seller business name)
+
+**Requirements:**
+- Templates MUST check BOTH `notesFooter` and `paymentTerms` fields
+- Support all 4 scenarios: both/notes-only/terms-only/neither
+- Never confuse labels (don't label `notesFooter` as "Terms & Conditions")
+- Maintain proper spacing between sections when both are present
+
+**Schema-Specific Patterns:**
+
+**Tally Schema** (mbbook_tally, tally_professional):
+- Two-column footer: Left = Notes/Terms, Right = Signature
+- Stack notes and terms vertically if both present
+- Show bullet points for payment terms list items
+
+**Modern Schema** (mbbook_stylish, modern_elite, mbbook_modern):
+- Single-column approach on left side
+- Styled container with both sections combined
+- Right side: Pricing summary + signature
+
+**Compact/Thermal Schema** (a5_compact, thermal_theme2):
+- Space-constrained layout
+- Compact vertical stacking of all elements
+- Minimal padding and smaller fonts
+
+**Testing:**
+Use the 12 dedicated test invoices in `DemoInvoices.getNotesAndTermsTestingInvoices()`:
+- 4 Tally schema tests (notes/terms/both/neither)
+- 4 Modern schema tests
+- 4 A5/Thermal schema tests
+
+**Common Mistakes:**
+- ❌ Only checking `notesFooter`, ignoring `paymentTerms`
+- ❌ Showing placeholder text when terms are populated
+- ❌ Labeling notes as "Terms & Conditions"
+- ❌ Not handling the "both present" scenario
+- ✅ Always check both fields with proper conditional logic
+
 ### Screenshot Paths
 Template screenshots must exist in `references/templateScreenshots/` and match the filename pattern in `screenshotPath`. Missing screenshots show a placeholder icon.
 
@@ -764,6 +807,15 @@ Each demo must be assigned to exactly one `DemoCategory`. The category determine
 ---
 
 ## Git Workflow
+
+### Automatic Commit & Push Rule
+
+**IMPORTANT:** After successfully implementing a plan or completing a significant task, you MUST:
+1. Stage all relevant changes with `git add`
+2. Create a concise commit message following conventional commits format
+3. Push changes to remote with `git push`
+
+This ensures work is never lost and maintains a clear commit history.
 
 ### When Committing Changes
 

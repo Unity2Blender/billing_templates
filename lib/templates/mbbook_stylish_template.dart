@@ -278,18 +278,22 @@ class MBBookStylishTemplate extends InvoiceTemplate {
   }
 
   pw.Widget _buildBottomSection(InvoiceData invoice) {
+    final hasNotes = invoice.notesFooter.isNotEmpty;
+    final hasTerms = invoice.paymentTerms.isNotEmpty;
+
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        // Left side - Notes (if present)
+        // Left side - Notes and/or Terms & Conditions
         pw.Expanded(
           flex: 3,
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              if (invoice.notesFooter.isNotEmpty) ...[
+              // Notes section
+              if (hasNotes) ...[
                 pw.Text(
-                  'TERMS AND CONDITIONS',
+                  'NOTES',
                   style: pw.TextStyle(
                     fontSize: 9,
                     fontWeight: pw.FontWeight.bold,
@@ -301,6 +305,27 @@ class MBBookStylishTemplate extends InvoiceTemplate {
                         padding: const pw.EdgeInsets.only(bottom: 2),
                         child: pw.Text(
                           line,
+                          style: const pw.TextStyle(fontSize: 8),
+                        ),
+                      ),
+                    ),
+                if (hasTerms) pw.SizedBox(height: 8),
+              ],
+              // Terms & Conditions section
+              if (hasTerms) ...[
+                pw.Text(
+                  'TERMS & CONDITIONS',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                ...invoice.paymentTerms.map(
+                      (term) => pw.Padding(
+                        padding: const pw.EdgeInsets.only(bottom: 2),
+                        child: pw.Text(
+                          '• $term',
                           style: const pw.TextStyle(fontSize: 8),
                         ),
                       ),

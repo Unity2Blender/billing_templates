@@ -223,7 +223,7 @@ class ThermalTheme2Template extends InvoiceTemplate {
                         style: const pw.TextStyle(fontSize: 8),
                       ),
                     pw.Text(
-                      item.qtyOnBill.toString(),
+                      '${item.qtyOnBill} ${item.item.qtyUnit}',
                       style: const pw.TextStyle(fontSize: 8),
                     ),
                     PDFFontHelpers.regularRupeeAmount(
@@ -340,6 +340,9 @@ class ThermalTheme2Template extends InvoiceTemplate {
   }
 
   pw.Widget _buildFooter(InvoiceData invoice) {
+    final hasNotes = invoice.notesFooter.isNotEmpty;
+    final hasTerms = invoice.paymentTerms.isNotEmpty;
+
     return pw.Column(
       children: [
         pw.Text(
@@ -347,13 +350,38 @@ class ThermalTheme2Template extends InvoiceTemplate {
           style: const pw.TextStyle(fontSize: 8),
           textAlign: pw.TextAlign.center,
         ),
-        if (invoice.notesFooter.isNotEmpty) ...[
+        // Notes section
+        if (hasNotes) ...[
           pw.SizedBox(height: 6),
+          pw.Text(
+            'NOTES',
+            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+            textAlign: pw.TextAlign.center,
+          ),
+          pw.SizedBox(height: 2),
           pw.Text(
             invoice.notesFooter,
             style: const pw.TextStyle(fontSize: 7),
             textAlign: pw.TextAlign.center,
           ),
+        ],
+        // Terms & Conditions section
+        if (hasTerms) ...[
+          pw.SizedBox(height: 6),
+          pw.Text(
+            'TERMS & CONDITIONS',
+            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+            textAlign: pw.TextAlign.center,
+          ),
+          pw.SizedBox(height: 2),
+          ...invoice.paymentTerms.map((term) => pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 1),
+                child: pw.Text(
+                  term,
+                  style: const pw.TextStyle(fontSize: 7),
+                  textAlign: pw.TextAlign.center,
+                ),
+              )),
         ],
         pw.SizedBox(height: 8),
         pw.Text(

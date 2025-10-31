@@ -743,6 +743,9 @@ class TallyProfessionalTemplate extends InvoiceTemplate {
   }
 
   pw.Widget _buildFooter(InvoiceData invoice, pw.Context context) {
+    final hasNotes = invoice.notesFooter.isNotEmpty;
+    final hasTerms = invoice.paymentTerms.isNotEmpty;
+
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
@@ -752,28 +755,48 @@ class TallyProfessionalTemplate extends InvoiceTemplate {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          // Left side - Notes or T&C
+          // Left side - Notes and/or Terms & Conditions
           pw.Expanded(
             flex: 1,
-            child: invoice.notesFooter.isNotEmpty
-                ? pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        'Notes:',
-                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
-                      ),
-                      pw.SizedBox(height: 4),
-                      pw.Text(
-                        invoice.notesFooter,
-                        style: const pw.TextStyle(fontSize: 8),
-                      ),
-                    ],
-                  )
-                : pw.Text(
-                    'Terms & Conditions Apply',
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Notes section
+                if (hasNotes) ...[
+                  pw.Text(
+                    'Notes:',
+                    style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    invoice.notesFooter,
                     style: const pw.TextStyle(fontSize: 8),
                   ),
+                  if (hasTerms) pw.SizedBox(height: 8),
+                ],
+                // Terms & Conditions section
+                if (hasTerms) ...[
+                  pw.Text(
+                    'Terms & Conditions:',
+                    style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 4),
+                  ...invoice.paymentTerms.map((term) => pw.Padding(
+                        padding: const pw.EdgeInsets.only(bottom: 2),
+                        child: pw.Text(
+                          '• $term',
+                          style: const pw.TextStyle(fontSize: 8),
+                        ),
+                      )),
+                ],
+                // If neither, show minimal placeholder
+                if (!hasNotes && !hasTerms)
+                  pw.Text(
+                    'Thank you for your business.',
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+              ],
+            ),
           ),
           pw.SizedBox(width: 12),
           // Right side - Signature

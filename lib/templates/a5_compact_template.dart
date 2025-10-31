@@ -44,9 +44,9 @@ class A5CompactTemplate extends InvoiceTemplate {
             _buildItemsTable(invoice),
             pw.SizedBox(height: 10),
             _buildSummary(invoice),
-            if (invoice.notesFooter.isNotEmpty) ...[
+            if (invoice.notesFooter.isNotEmpty || invoice.paymentTerms.isNotEmpty) ...[
               pw.SizedBox(height: 8),
-              _buildNotes(invoice),
+              _buildNotesAndTerms(invoice),
             ],
             pw.Spacer(),
             _buildFooter(invoice),
@@ -282,7 +282,10 @@ class A5CompactTemplate extends InvoiceTemplate {
     );
   }
 
-  pw.Widget _buildNotes(InvoiceData invoice) {
+  pw.Widget _buildNotesAndTerms(InvoiceData invoice) {
+    final hasNotes = invoice.notesFooter.isNotEmpty;
+    final hasTerms = invoice.paymentTerms.isNotEmpty;
+
     return pw.Container(
       padding: const pw.EdgeInsets.all(6),
       decoration: pw.BoxDecoration(
@@ -292,14 +295,33 @@ class A5CompactTemplate extends InvoiceTemplate {
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Text(
-            'Notes:',
-            style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.Text(
-            invoice.notesFooter,
-            style: const pw.TextStyle(fontSize: 7),
-          ),
+          // Notes section
+          if (hasNotes) ...[
+            pw.Text(
+              'Notes:',
+              style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.Text(
+              invoice.notesFooter,
+              style: const pw.TextStyle(fontSize: 7),
+            ),
+            if (hasTerms) pw.SizedBox(height: 6),
+          ],
+          // Terms & Conditions section
+          if (hasTerms) ...[
+            pw.Text(
+              'Terms & Conditions:',
+              style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 2),
+            ...invoice.paymentTerms.map((term) => pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 1),
+                  child: pw.Text(
+                    '• $term',
+                    style: const pw.TextStyle(fontSize: 7),
+                  ),
+                )),
+          ],
         ],
       ),
     );
