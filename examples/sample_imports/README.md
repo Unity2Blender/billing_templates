@@ -75,17 +75,18 @@ This directory contains sample CSV and Excel files for testing the Sheets Import
 #### 3. Data Quality (1 file)
 
 **sample_items_mixed_quality.csv** - ⚡ Valid + Invalid rows
-- **Rows:** 15 items (10 valid, 5 invalid)
+- **Rows:** 15 items (13 valid, 2 invalid)
 - **Columns:** All 7 columns
 - **Purpose:** Test error handling with mixed data quality
-- **Use case:** Verify skipInvalidRows works, warnings displayed
-- **Invalid rows:**
+- **Use case:** Verify skipInvalidRows works, lenient validation
+- **Invalid rows (rejected):**
   - Row 3: Empty name (required field missing)
-  - Row 7: Text in price field ("not-a-number")
-  - Row 10: Negative GST rate (-5%)
   - Row 12: Missing name (empty string)
-  - Row 15: Invalid HSN (special chars only: "@#$%")
-- **Expected:** 10 rows imported, 5 skipped with warnings
+- **Data quality issues (accepted with defaults):**
+  - Row 7: Text in price field ("not-a-number") → defaults to 0.0
+  - Row 10: Negative GST rate (-5%) → accepted as-is
+  - Row 15: Invalid HSN (special chars only: "@#$%") → accepted as-is
+- **Expected:** 13 rows imported, 2 skipped with warnings (lenient validation)
 
 ---
 
@@ -261,7 +262,7 @@ When using these sample files with default configuration:
 - **sample_parties_edge_cases.csv**: 8 valid parties imported, 4 with warnings (not failures)
 
 ### Data Quality
-- **sample_items_mixed_quality.csv**: 10 items imported, 5 skipped with warnings
+- **sample_items_mixed_quality.csv**: 13 items imported, 2 skipped with warnings (lenient validation)
 
 ### Performance
 - **sample_items_large.csv**: All 50 items imported in <500ms
@@ -304,8 +305,9 @@ When using these sample files with default configuration:
 ### 6. Data Quality Testing
 **File:** `sample_items_mixed_quality.csv`
 **Config:** `skipInvalidRows: true` (default)
-**Expected:** 10 valid items imported, 5 warnings for invalid rows
-**Purpose:** Test error handling and warning system
+**Expected:** 13 valid items imported, 2 warnings for rows with empty names
+**Purpose:** Test error handling, lenient validation, and warning system
+**Note:** Only empty required fields (name) cause rejection. Data quality issues (invalid numbers, special chars) are handled gracefully with defaults.
 
 ### 7. Performance Testing
 **File:** `sample_items_large.csv`

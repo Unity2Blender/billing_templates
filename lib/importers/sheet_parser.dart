@@ -37,7 +37,14 @@ class SheetParser {
   static ParsedSheet _parseCsv(Uint8List fileBytes) {
     try {
       final csvString = String.fromCharCodes(fileBytes);
-      final rows = const CsvToListConverter().convert(csvString);
+
+      // Configure CSV parser with explicit eol (end of line) character
+      // This ensures newlines are treated as row separators, not field content
+      // Note: shouldParseNumbers=false keeps all values as strings for consistent validation
+      final rows = const CsvToListConverter(
+        eol: '\n',
+        shouldParseNumbers: false,
+      ).convert(csvString);
 
       if (rows.isEmpty) {
         throw ImportException(
