@@ -1,3 +1,5 @@
+import 'custom_field_value.dart';
+
 class ItemBasicInfo {
   final String name;
   final String description;
@@ -26,6 +28,13 @@ class ItemSaleInfo {
   final double grossTaxCharged;
   final double lineTotal;
 
+  /// Custom fields for this line item (e.g., warranty, color, batch number)
+  ///
+  /// These are item-level custom fields (where isItemField == true in schema).
+  /// Rendered inline within the item name column across all templates.
+  /// Format: (FieldName: Value, Field2: Value2)
+  final List<CustomFieldValue> customFields;
+
   ItemSaleInfo({
     required this.item,
     required this.partyNetPrice,
@@ -39,5 +48,6 @@ class ItemSaleInfo {
     this.cessAmt = 0.0,
     required this.grossTaxCharged,
     required this.lineTotal,
+    this.customFields = const [],
   });
 }

@@ -24,6 +24,28 @@ abstract class InvoiceTemplate {
   /// Default color theme for this template
   InvoiceColorTheme get defaultColorTheme => InvoiceThemes.default$;
 
+  /// Whether this template supports item-level custom fields
+  ///
+  /// When true, the template will render custom fields inline within
+  /// the item name column (stacked vertically: name → description → fields).
+  /// Default: false for backward compatibility.
+  bool get supportsItemCustomFields => false;
+
+  /// Whether this template supports business-level custom fields
+  ///
+  /// When true, the template will render custom fields in an "Additional Details"
+  /// section within seller/buyer business details blocks.
+  /// Default: false for backward compatibility.
+  bool get supportsBusinessCustomFields => false;
+
+  /// Custom field rendering strategy for items table
+  ///
+  /// - 'inline': Custom fields rendered within item name column (UNIVERSAL strategy for v2.0)
+  ///
+  /// This property exists for future extensibility (e.g., 'columns', 'grouped' strategies)
+  /// but currently all templates use 'inline' strategy as specified in implementation plan.
+  String get itemCustomFieldStrategy => 'inline';
+
   /// Generate a PDF document from invoice data
   Future<pw.Document> generatePDF({
     required InvoiceData invoice,

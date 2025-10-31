@@ -1,4 +1,5 @@
 import '../models/item_sale_info.dart' show ItemSaleInfo, ItemBasicInfo;
+import '../models/custom_field_value.dart';
 
 /// Adapter to convert FlutterFlow ItemSaleInfoStruct to internal ItemSaleInfo model.
 ///
@@ -24,11 +25,16 @@ class ItemAdapter {
   /// - grossTaxCharged → taxRate (total GST % + CESS %)
   /// - lineTotal → total (final amount)
   ///
+  /// **Custom Fields Support:**
+  /// - customFieldInputs[] → Extracted where fieldSchema.isItemField == true
+  /// - Parsed based on fieldSchema.formWidgetType (text, number, date, boolean, etc.)
+  /// - Sorted by displayOrder for consistent rendering
+  /// - Rendered inline within item name column across all templates
+  ///
   /// **Ignored Fields (DocumentReferences and Metadata):**
   /// - item.itemRef → Database reference (not needed for PDF generation)
   /// - item.byFirms → List of firm refs (DB metadata)
   /// - item.partySpecificPrices → Pricing rules (already calculated in partyNetPrice)
-  /// - customFieldInputs → Custom field values (not rendered in standard templates)
   ///
   /// **Tax Calculation Notes:**
   /// - The `csgst` field in FlutterFlow struct represents CGST+SGST combined amount
@@ -53,6 +59,9 @@ class ItemAdapter {
       qtyUnit: item.qtyUnit ?? 'Nos',
     );
 
+    // Extract item-level custom fields
+    final customFields = _extractItemCustomFields(itemStruct);
+
     return ItemSaleInfo(
       item: itemBasicInfo,
       partyNetPrice: itemStruct.partyNetPrice ?? item.defaultNetPrice ?? 0.0,
@@ -66,7 +75,112 @@ class ItemAdapter {
       csgst: itemStruct.csgst ?? 0.0, // Combined CGST+SGST for intra-state
       cessAmt: itemStruct.cessAmt ?? 0.0,
       lineTotal: itemStruct.lineTotal ?? 0.0,
+      customFields: customFields,
     );
+  }
+
+  /// Extracts item-level custom fields from customFieldInputs array.
+  ///
+  /// Filters for item-level fields (where fieldSchema.isItemField == true),
+  /// extracts values based on field type, and sorts by displayOrder.
+  static List<CustomFieldValue> _extractItemCustomFields(dynamic itemStruct) {
+    try {
+      // Access customFieldInputs array
+      final customFieldInputs = itemStruct.customFieldInputs;
+      if (customFieldInputs == null || customFieldInputs.isEmpty) {
+        return [];
+      }
+
+      final List<CustomFieldValue> fields = [];
+
+      for (var fieldInput in customFieldInputs) {
+        final fieldSchema = fieldInput.fieldSchema;
+
+        // Filter: Only include item-level fields
+        if (fieldSchema?.isItemField != true) {
+          continue;
+        }
+
+        // Extract field metadata
+        final fieldName = fieldSchema?.nameLabel ?? '';
+        final fieldType = _mapKeyboardInputTypeToFieldType(
+          fieldSchema?.formWidgetType?.toString() ?? 'text'
+        );
+
+        // Extract value based on type
+        final value = _extractFieldValue(fieldInput, fieldType);
+
+        // Create CustomFieldValue
+        fields.add(CustomFieldValue(
+          fieldName: fieldName,
+          fieldType: fieldType,
+          value: value,
+          displayOrder: 0, // FlutterFlow struct doesn't have displayOrder yet
+          isRequired: false, // Not available in current struct
+        ));
+      }
+
+      // Sort by displayOrder (though currently all are 0, this future-proofs the code)
+      fields.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+
+      return fields;
+    } catch (e) {
+      // Gracefully handle extraction errors - return empty list
+      return [];
+    }
+  }
+
+  /// Maps KeyboardInputType enum to our field type strings.
+  static String _mapKeyboardInputTypeToFieldType(String keyboardType) {
+    final type = keyboardType.toLowerCase();
+
+    if (type.contains('number') || type.contains('decimal')) {
+      return 'number';
+    } else if (type.contains('date') || type.contains('time')) {
+      return 'date';
+    } else if (type.contains('boolean') || type.contains('checkbox')) {
+      return 'boolean';
+    } else if (type.contains('multiselect')) {
+      return 'multiselect';
+    } else if (type.contains('select') || type.contains('dropdown')) {
+      return 'select';
+    } else {
+      return 'text'; // Default to text
+    }
+  }
+
+  /// Extracts the actual value from fieldInput based on field type.
+  static dynamic _extractFieldValue(dynamic fieldInput, String fieldType) {
+    try {
+      // The fieldInputStr contains the value as a string
+      final inputStr = fieldInput.fieldInputStr ?? '';
+
+      if (inputStr.isEmpty) {
+        return null;
+      }
+
+      switch (fieldType) {
+        case 'number':
+          return double.tryParse(inputStr) ?? 0.0;
+
+        case 'boolean':
+          return inputStr.toLowerCase() == 'true' || inputStr == '1';
+
+        case 'date':
+          return DateTime.tryParse(inputStr);
+
+        case 'multiselect':
+          // Assuming comma-separated values
+          return inputStr.split(',').map((s) => s.trim()).toList();
+
+        case 'text':
+        case 'select':
+        default:
+          return inputStr;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 }
 
