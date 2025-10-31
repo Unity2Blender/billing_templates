@@ -5,6 +5,7 @@ import '../utils/demo_helpers.dart';
 import '../models/invoice_data.dart';
 import '../models/demo_invoice_metadata.dart';
 import 'invoice_preview_screen.dart';
+import 'import_type_selection_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,6 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.blue[700],
         foregroundColor: Colors.white,
         elevation: 2,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.upload_file),
+            tooltip: 'Import Data from Sheets',
+            iconSize: isMobile ? 20 : 24,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ImportTypeSelectionScreen(),
+                ),
+              );
+            },
+          ),
+          SizedBox(width: isMobile ? 8 : 12),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
