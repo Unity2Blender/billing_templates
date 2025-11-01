@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../models/column_mapping.dart';
 import '../models/import_config.dart';
 import '../models/import_result.dart';
+import '../utils/csv_sanitizer.dart';
 import 'column_matcher.dart';
 import 'sheet_parser.dart';
 
@@ -119,6 +120,7 @@ class ItemSheetImporter {
             parsedSheet: parsedSheet,
             rowIndex: i,
             columnMappings: columnMappings,
+            warnings: warnings,
           );
 
           // Validate required fields
@@ -192,12 +194,36 @@ class ItemSheetImporter {
     required ParsedSheet parsedSheet,
     required int rowIndex,
     required Map<String, ColumnMapping> columnMappings,
+    required List<ImportWarning> warnings,
   }) {
     String getValue(String fieldName, {String defaultValue = ''}) {
       final mapping = columnMappings[fieldName];
       if (mapping == null) return defaultValue;
 
-      final value = parsedSheet.getCell(rowIndex, mapping.columnIndex);
+      String value = parsedSheet.getCell(rowIndex, mapping.columnIndex);
+
+      // Apply sanitization if enabled
+      if (config.sanitizeInput) {
+        // Check if value needs sanitization (skip regular spaces but keep tabs/CR)
+        String checkValue = value;
+        while (checkValue.isNotEmpty && checkValue[0] == ' ') {
+          checkValue = checkValue.substring(1);
+        }
+
+        if (checkValue.isNotEmpty && CsvSanitizer.requiresSanitization(checkValue)) {
+          final originalValue = value;
+          value = CsvSanitizer.sanitizeCell(value);
+
+          // Track sanitization warning
+          warnings.add(ImportWarning(
+            message: 'Sanitized potential CSV injection: "$originalValue" → "$value"',
+            rowIndex: rowIndex,
+            columnName: mapping.sheetColumnName,
+            type: ImportWarningType.sanitizedFormulaInjection,
+          ));
+        }
+      }
+
       return config.trimWhitespace ? value.trim() : value;
     }
 

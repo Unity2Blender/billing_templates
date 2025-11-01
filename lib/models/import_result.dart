@@ -107,6 +107,7 @@ enum ImportWarningType {
   missingOptionalField,
   dataTypeCoercion,
   duplicateRow,
+  sanitizedFormulaInjection,
   other,
 }
 

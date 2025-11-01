@@ -1,0 +1,23 @@
+Item Name,Price,Description
+=,100,Just an equals sign
++,200,Just a plus sign
+-,300,Just a minus sign
+@,400,Just an at sign
+|,500,Just a pipe character
+Normal Product,600,Completely safe product
+Product with = in middle,700,This = character is safe (not at start)
+Product with + in middle,800,This + character is safe (not at start)
+user@example.com Product,900,Email address is safe
+Item with 안녕하세요 unicode,1000,Unicode characters are safe
+=안全 Formula,1100,Formula with Unicode characters
+Product with newline
+in name,1200,Multi-line product name
+=1+1
++2,1300,Multi-line formula injection
+Ñoño Product,1400,Spanish characters with tildes
+Product™,1500,Product with trademark symbol
+100% Pure,1600,Percentage symbol is safe
+$999 Item,1700,Dollar sign is safe
+#1 Product,1800,Hash is safe
+Product & Co,1900,Ampersand is safe
+Product (Pro),2000,Parentheses are safe

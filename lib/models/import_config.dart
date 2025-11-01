@@ -39,6 +39,20 @@ class ImportConfig {
   /// This helps match common variations of column names.
   final Map<String, List<String>> customAliases;
 
+  /// Whether to sanitize input data to prevent CSV injection attacks
+  ///
+  /// Default: true (RECOMMENDED)
+  /// - true: Sanitize cells starting with =, +, -, @, | to prevent formula injection
+  /// - false: Keep data as-is (only use for trusted data sources)
+  ///
+  /// CSV injection (Formula Injection) occurs when malicious formulas are embedded
+  /// in CSV/Excel files. When opened in spreadsheet applications, these formulas
+  /// can execute arbitrary commands. This setting prepends a single quote (') to
+  /// dangerous cells to neutralize the threat.
+  ///
+  /// See: https://owasp.org/www-community/attacks/CSV_Injection
+  final bool sanitizeInput;
+
   const ImportConfig({
     this.minimumMatchScore = 70.0,
     this.skipInvalidRows = true,
@@ -46,6 +60,7 @@ class ImportConfig {
     this.trimWhitespace = true,
     this.allowPartialImport = false,
     this.customAliases = const {},
+    this.sanitizeInput = true,
   });
 
   /// Default strict configuration (high confidence matches only)
@@ -53,6 +68,7 @@ class ImportConfig {
     minimumMatchScore: 85.0,
     skipInvalidRows: false,
     allowPartialImport: false,
+    sanitizeInput: true,
   );
 
   /// Default lenient configuration (accepts lower confidence matches)
@@ -60,6 +76,7 @@ class ImportConfig {
     minimumMatchScore: 60.0,
     skipInvalidRows: true,
     allowPartialImport: true,
+    sanitizeInput: true,
   );
 
   ImportConfig copyWith({
@@ -69,6 +86,7 @@ class ImportConfig {
     bool? trimWhitespace,
     bool? allowPartialImport,
     Map<String, List<String>>? customAliases,
+    bool? sanitizeInput,
   }) {
     return ImportConfig(
       minimumMatchScore: minimumMatchScore ?? this.minimumMatchScore,
@@ -77,6 +95,7 @@ class ImportConfig {
       trimWhitespace: trimWhitespace ?? this.trimWhitespace,
       allowPartialImport: allowPartialImport ?? this.allowPartialImport,
       customAliases: customAliases ?? this.customAliases,
+      sanitizeInput: sanitizeInput ?? this.sanitizeInput,
     );
   }
 }
