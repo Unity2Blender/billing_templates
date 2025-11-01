@@ -94,112 +94,54 @@ Project guidance for Claude Code when working with this Flutter invoice PDF temp
 
 ## Custom Fields (v2.0+) ✅ IMPLEMENTED
 
-**Item-Level** (`isBusiness: false`):
-- Rendered inline below item name
-- Format: "Field1: Value1 • Field2: Value2"
-- Font: 7-8pt, grey color
+**Status:** 85% Complete (Core implementation done, visual testing pending)
 
-**Business-Level** (`isBusiness: true`):
-- Rendered in "Additional Details" section
-- Bordered container, one field per line
-- Format: "Field Name: Field Value"
+**Quick Reference:**
+- **Item-Level:** Inline below item name (7-8pt font, grey color)
+- **Business-Level:** "Additional Details" bordered section
+- **Supported Types:** text, number (2 decimals), date (DD-MM-YYYY), boolean (Yes/No), select, multiselect
+- **Party-Specific:** Different buyers can have different custom fields (filtered by `partyRef`)
+- **Testing:** 12 demo invoices in `DemoInvoices.getCustomFieldsTestingInvoices()`
 
-**Supported Types:** text, number (2 decimals), date (DD-MM-YYYY), boolean (Yes/No), select, multiselect
-
-**Party-Specific:** Different buyers can have different custom fields (filtered by `partyRef`)
-
-**Testing:** 12 demo invoices in `DemoInvoices.getCustomFieldsTestingInvoices()`
+**Full Documentation:**
+- **Implementation Status:** `READMEs/Custom fields support/CUSTOM_FIELDS_STATUS.md`
+- **Developer Guide:** `READMEs/Custom fields support/IMPLEMENTATION_GUIDE_CustomFields.md`
+- **Complete Specification:** `READMEs/Custom fields support/TODO-CustomFields.md`
 
 ---
 
-## Sheets Importer (v2.1)
+## Sheets Importer (v2.1+) ✅ IMPLEMENTED
 
 Import items/products and party contacts from CSV/Excel with fuzzy column matching.
 
-**API:**
+**Quick Start:**
 ```dart
 import 'package:billing_templates/billing_templates.dart';
 
 final service = SheetsImporterService();
-
-// Import items
 final result = await service.importItems(
   fileBytes: csvBytes,
   fileName: 'products.csv',
   config: ImportConfig.standard, // or .strict, .lenient
 );
-
-// Import parties
-final result = await service.importParties(
-  fileBytes: excelBytes,
-  fileName: 'customers.xlsx',
-);
 ```
 
-**Supported Fields:**
+**Key Features:**
+- **Fuzzy Matching:** Handles typos (e.g., "Product Nam" → name 92%, "UOM" → qtyUnit 75%)
+- **Dual Import:** Items (Name*, HSN, Price, GST%, Qty Unit, Stock, Desc) | Parties (Name*, Phone, Email, GSTIN, PAN, State, District, Address)
+- **Output:** `ImportedItemData[]` / `ImportedPartyData[]` with `.toMap()` for Firestore upload
 
-| Items/Products | Party/Business Contacts |
-|----------------|-------------------------|
-| Name* (required), HSN Code, Price, GST Rate %, Quantity Unit, Stock Qty, Description | Business Name* (required), Phone, Email, GSTIN, PAN, State, District, Address |
+### CSV Injection Security (v2.2+) ✅
 
-**Fuzzy Matching Examples:**
-- "Product Nam" → name (92%)
-- "Rate" → defaultNetPrice (85%)
-- "UOM" → qtyUnit (75%)
+**OWASP-Compliant Protection** against formula injection (`=`, `+`, `-`, `@`, `|`, tab, CR). Sanitization is **enabled by default** (recommended). Opt-out with `ImportConfig(sanitizeInput: false)` for trusted sources only.
 
-**Output:** `ImportedItemData[]` / `ImportedPartyData[]` with `.toMap()` for Firestore upload
+**Warnings:** Sanitized cells generate `ImportWarningType.sanitizedFormulaInjection` warnings.
 
-**Sample Files:** `examples/sample_imports/` (README.md, sample CSVs, security test files)
-
-### CSV Injection Security (v2.2+) ✅ IMPLEMENTED
-
-**OWASP-Compliant Protection:** The importer includes automatic sanitization to prevent CSV formula injection attacks.
-
-**Attack Vectors Protected:**
-- `=` formulas (e.g., `=SUM(A1:A10)`, `=cmd|'/c calc'`)
-- `+` prefix formulas
-- `-` prefix formulas
-- `@` function calls (e.g., `@SUM(1+1)`)
-- `|` pipe character injection
-- Tab and carriage return injection
-
-**How It Works:**
-Cells starting with dangerous characters are automatically prepended with a single quote `'` to neutralize formulas:
-- Input: `=malicious formula`
-- Output: `'=malicious formula`
-
-**Configuration:**
-```dart
-// Default: Sanitization enabled (recommended)
-final result = await service.importItems(
-  fileBytes: csvBytes,
-  fileName: 'products.csv',
-);
-
-// Opt-out for trusted sources only (not recommended)
-final result = await service.importItems(
-  fileBytes: csvBytes,
-  fileName: 'trusted.csv',
-  config: ImportConfig(sanitizeInput: false),
-);
-```
-
-**Warnings:**
-Sanitized cells generate `ImportWarningType.sanitizedFormulaInjection` warnings:
-```dart
-if (result.warnings.any((w) => w.type == ImportWarningType.sanitizedFormulaInjection)) {
-  print('CSV injection detected and neutralized');
-}
-```
-
-**Testing:**
-- Unit tests: `test/security/csv_injection_test.dart`
-- Sample attack files: `examples/sample_imports/sample_*_injection_attack.csv`
-- Security README: `examples/sample_imports/README_SECURITY.md`
-
-**References:**
-- [OWASP CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection)
-- [CWE-1236](https://cwe.mitre.org/data/definitions/1236.html)
+**Full Documentation:**
+- **Implementation Guide:** `READMEs/XLSX importer/Importer-STATUS.md`
+- **Sample Files:** `examples/sample_imports/README.md`
+- **Security Details:** `examples/sample_imports/README_SECURITY.md`
+- **Testing:** `test/security/csv_injection_test.dart`
 
 ---
 
@@ -341,7 +283,16 @@ All in `lib/templates/`:
 | `references/README/Flutter Inv Gen.md` | Implementation guide (2100+ lines) |
 | `references/templateScreenshots/` | Template preview images |
 | `references/structTypes/custom_field_struct.dart` | FlutterFlow CustomFieldStruct |
-| `TODO-CustomFields.md` | Custom fields roadmap |
+
+### Documentation
+| File | Purpose |
+|------|---------|
+| `READMEs/Custom fields support/CUSTOM_FIELDS_STATUS.md` | Implementation progress tracker |
+| `READMEs/Custom fields support/IMPLEMENTATION_GUIDE_CustomFields.md` | Developer coding guide |
+| `READMEs/Custom fields support/TODO-CustomFields.md` | Complete specification |
+| `READMEs/XLSX importer/Importer-STATUS.md` | Importer architecture & API reference |
+| `examples/sample_imports/README.md` | Sample files usage guide |
+| `examples/sample_imports/README_SECURITY.md` | CSV injection security guide |
 
 ---
 
