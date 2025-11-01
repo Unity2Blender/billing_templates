@@ -60,6 +60,10 @@ Project guidance for Claude Code when working with this Flutter invoice PDF temp
 - `buildThumbnail()` - Template selector UI
 
 **Registry:** `TemplateRegistry` - Map-based template lookup
+- `getTemplate(id)` - Get template instance
+- `getAllTemplates()` - Get all template objects
+- `getAllTemplateIds()` - Get all template IDs (alphabetically sorted)
+- `hasTemplate(id)` - Check if template exists
 
 **3 Schema Types:**
 
@@ -145,7 +149,57 @@ final result = await service.importParties(
 
 **Output:** `ImportedItemData[]` / `ImportedPartyData[]` with `.toMap()` for Firestore upload
 
-**Sample Files:** `examples/sample_imports/` (README.md, sample CSVs)
+**Sample Files:** `examples/sample_imports/` (README.md, sample CSVs, security test files)
+
+### CSV Injection Security (v2.2+) ✅ IMPLEMENTED
+
+**OWASP-Compliant Protection:** The importer includes automatic sanitization to prevent CSV formula injection attacks.
+
+**Attack Vectors Protected:**
+- `=` formulas (e.g., `=SUM(A1:A10)`, `=cmd|'/c calc'`)
+- `+` prefix formulas
+- `-` prefix formulas
+- `@` function calls (e.g., `@SUM(1+1)`)
+- `|` pipe character injection
+- Tab and carriage return injection
+
+**How It Works:**
+Cells starting with dangerous characters are automatically prepended with a single quote `'` to neutralize formulas:
+- Input: `=malicious formula`
+- Output: `'=malicious formula`
+
+**Configuration:**
+```dart
+// Default: Sanitization enabled (recommended)
+final result = await service.importItems(
+  fileBytes: csvBytes,
+  fileName: 'products.csv',
+);
+
+// Opt-out for trusted sources only (not recommended)
+final result = await service.importItems(
+  fileBytes: csvBytes,
+  fileName: 'trusted.csv',
+  config: ImportConfig(sanitizeInput: false),
+);
+```
+
+**Warnings:**
+Sanitized cells generate `ImportWarningType.sanitizedFormulaInjection` warnings:
+```dart
+if (result.warnings.any((w) => w.type == ImportWarningType.sanitizedFormulaInjection)) {
+  print('CSV injection detected and neutralized');
+}
+```
+
+**Testing:**
+- Unit tests: `test/security/csv_injection_test.dart`
+- Sample attack files: `examples/sample_imports/sample_*_injection_attack.csv`
+- Security README: `examples/sample_imports/README_SECURITY.md`
+
+**References:**
+- [OWASP CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection)
+- [CWE-1236](https://cwe.mitre.org/data/definitions/1236.html)
 
 ---
 
@@ -267,6 +321,7 @@ All in `lib/templates/`:
 | `lib/utils/currency_formatter.dart` | Indian currency (₹1,23,456.78) |
 | `lib/utils/invoice_colors.dart` | Color theme definitions |
 | `lib/utils/demo_helpers.dart` | Demo organization/filtering |
+| `lib/utils/csv_sanitizer.dart` | OWASP CSV injection protection |
 
 ### Importers
 | File | Purpose |
@@ -326,6 +381,18 @@ flutter run -d chrome --web-renderer html
 - Layout: `getStressTestManyItems()`, `getPartialPaymentScenario()`, `getMinimalDataInvoice()`
 - Footer: `getNotesAndTermsTestingInvoices()` (12 invoices)
 - Custom Fields: `getCustomFieldsTestingInvoices()` (12 invoices)
+
+**Security Testing:**
+```bash
+# Run CSV injection security tests
+flutter test test/security/csv_injection_test.dart
+
+# Run all tests
+flutter test
+
+# Test with sample attack files
+# Import: examples/sample_imports/sample_*_injection_attack.csv
+```
 
 ---
 
@@ -432,35 +499,6 @@ flutter run -d chrome --web-renderer html
 
 **Dev:**
 - `flutter_lints: ^5.0.0` - Linting
-
----
-
-## Performance
-
-**PDF Generation:**
-- Simple: <100ms
-- Complex (15+ items): 200-500ms
-- Thermal: Fastest, Tally: Slowest (HSN summary)
-
-**Optimization:**
-- Cache converted `InvoiceData` for repeated generation
-- Pre-load fonts on app startup
-- Use local assets for logos (not URLs)
-
-**Multi-page:** Use `pw.MultiPage` for auto-pagination (test with `getStressTestManyItems()`)
-
----
-
-## Version History
-
-**v2.1:** Sheets Importer with fuzzy matching
-**v2.0:** Custom fields support (fully implemented)
-**v1.0:** Adapter refinements, BillSummary field alignment, InvoiceMode enum updates
-
-**Versioning:** Semantic (v1.0.0, v1.1.0, v2.0.0)
-- Major: Breaking changes
-- Minor: New features
-- Patch: Bug fixes
 
 ---
 

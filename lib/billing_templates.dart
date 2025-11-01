@@ -31,6 +31,13 @@
 /// - `a5_compact` - A5 format for retail
 /// - `thermal_theme2` - Thermal printer format
 ///
+/// **Get Template IDs Programmatically:**
+/// ```dart
+/// final templateIds = TemplateRegistry.getAllTemplateIds();
+/// // Returns: ['a5_compact', 'mbbook_modern', 'mbbook_stylish',
+/// //           'mbbook_tally', 'modern_elite', 'tally_professional', 'thermal_theme2']
+/// ```
+///
 /// **Sheets Importer (New):**
 /// ```dart
 /// // Import items from CSV/Excel

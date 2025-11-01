@@ -26,6 +26,22 @@ class TemplateRegistry {
     return _templates.values.toList();
   }
 
+  /// Returns a list of all available template IDs in alphabetical order.
+  ///
+  /// This is useful for building UI selectors or validating template IDs
+  /// without needing to access full template objects.
+  ///
+  /// Example:
+  /// ```dart
+  /// final templateIds = TemplateRegistry.getAllTemplateIds();
+  /// // Returns: ['a5_compact', 'mbbook_modern', 'mbbook_stylish', ...]
+  /// ```
+  static List<String> getAllTemplateIds() {
+    final ids = _templates.keys.toList();
+    ids.sort(); // Sort alphabetically for consistency
+    return ids;
+  }
+
   static bool hasTemplate(String id) {
     return _templates.containsKey(id);
   }

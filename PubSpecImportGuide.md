@@ -536,6 +536,32 @@ class TemplateRegistry {
 
   // Get all available templates
   static List<InvoiceTemplate> getAllTemplates()
+
+  // Get all template IDs (alphabetically sorted)
+  static List<String> getAllTemplateIds()
+
+  // Check if template exists
+  static bool hasTemplate(String id)
+}
+```
+
+**Example - Getting Template IDs:**
+
+```dart
+// Get list of all template IDs
+final templateIds = TemplateRegistry.getAllTemplateIds();
+// Returns: ['a5_compact', 'mbbook_modern', 'mbbook_stylish',
+//           'mbbook_tally', 'modern_elite', 'tally_professional', 'thermal_theme2']
+
+// Use in dropdown/selector
+final templates = templateIds.map((id) => DropdownMenuItem(
+  value: id,
+  child: Text(id),
+)).toList();
+
+// Validate template ID
+if (TemplateRegistry.hasTemplate('custom_template')) {
+  // Template exists
 }
 ```
 
