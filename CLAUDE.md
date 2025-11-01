@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Project guidance for Claude Code when working with this Flutter invoice PDF template library.
+Project guidance for Claude Code when working with this Flutter invoice PDF template library. Use /flutter-architect agent for architecture guidance.
 
 ---
 

@@ -23,11 +23,10 @@ Complete guide for importing and using the `billing_templates` package as a Git 
 ### 1. Add to pubspec.yaml
 
 ```yaml
-dependencies:
-  billing_templates:
-    git:
-      url: https://github.com/Unity2Blender/billing_templates.git
-      ref: v1.0.0  # Or use branch: main for latest
+billing_templates:
+  git:
+    url: https://github.com/Unity2Blender/billing_templates.git
+    ref: v1.0.0  # Or use branch: main for latest
 ```
 
 ### 2. Import in your Dart code
@@ -71,21 +70,19 @@ Your FlutterFlow app must already have:
 #### Option 1: Specific Version (Recommended for Production)
 
 ```yaml
-dependencies:
-  billing_templates:
-    git:
-      url: https://github.com/Unity2Blender/billing_templates.git
-      ref: v1.0.0  # Git tag
+billing_templates:
+  git:
+    url: https://github.com/Unity2Blender/billing_templates.git
+    ref: v1.0.0  # Git tag
 ```
 
 #### Option 2: Latest from Branch (For Development)
 
 ```yaml
-dependencies:
-  billing_templates:
-    git:
-      url: https://github.com/Unity2Blender/billing_templates.git
-      ref: main  # Or your development branch
+billing_templates:
+  git:
+    url: https://github.com/Unity2Blender/billing_templates.git
+    ref: main  # Or your development branch
 ```
 
 ### Install Dependencies
